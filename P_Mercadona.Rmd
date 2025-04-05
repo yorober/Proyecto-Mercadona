@@ -36,23 +36,23 @@ knit_hooks$set(inline=function(x) {
 # knit_hooks$set(plot=knitr:::hook_plot_html)
 ```
 
-  He creado este documento para la realizacion del proyecto de los tickets de mercadona. A continuacion se mostraran en diferentes apartados como se separará el trabajo en nuestro equipo y quienes serán los encargados de cada parte.
+  He creado este documento para la realización del proyecto de los tickets de mercadona. A continuación se mostrarán en diferentes apartados cómo se separará el trabajo en nuestro equipo y quiénes serán los encargados de cada parte.
 
-  Es importante entender que estoy diviendo el trabajo basándome unicamente en mi criterio personal de habilidad sobre cada uno de ustedes y que, en caso de terminar vuestra parte, pueden y deberian ayudar a los demás, con el fin de terminar antes y corregir errores. Tambien es recomendable darle un vistazo a cada parte, independientemente de que no sea la que le corresponde a cada uno o no, pues ayudará considerablemente durante la exposicion del trabajo el comprender como funciona todo el programa en general.
+  Es importante entender que estoy dividiendo el trabajo basándome únicamente en mi criterio personal de habilidad sobre cada uno de ustedes y que, en caso de terminar vuestra parte, pueden y deberían ayudar a los demás, con el fin de terminar antes y corregir errores. Tambien es recomendable darle un vistazo a cada parte, independientemente de que sea la que le corresponde a cada uno o no, pues ayudará considerablemente durante la exposición del trabajo el comprender cómo funciona todo el programa en general.
 
 
 # Nota general
 
-   Para organizar correctamente el trabajo he dividido el ticket en 3 partes: desde el principio hasta los producto, todo el apartado de productos, y todo lo que esta después del apartado de productos. Cada una de estas partes será procesada por 2 miembros del equipo y luego esas partes procesadas serán unidas al final del trabajo creando nuestro data frame de importacion.
-   Ahora, sobre el trabajo en si, debemos sacar TODA la informacion que tengamos en cada una de las respectivas partes e ir acumulandolas en un data frame, todo lo que podamos sacar, se debe sacar y poner en una columna, mientras mas informacion saquemos mas preguntas podremos responder y exponer correctamente.
-   Tambien deben conocer que haremos esto en 2 data frames diferentes, uno para la infromacion del ticket (exceptuando los productos) y uno para los productos, esto significa que habra que tener una clave comun en ambos dat frame y esa clave sera el tercer numero de la "factura simplificada" o la factura simplicada en si, comprenderan a que dato me refiero una vez leais el primer ticket. Probaremos nuestros programas en los tickets que tiene nombres especiales (como uno que dice referencia en su nombre y otro que dice vegetales y asi), cuando todo funcione correctamente recuerden guardar y hacer un commit para que todos los demas podamos analizar el programa
+   Para organizar correctamente el trabajo he dividido el ticket en 3 partes: desde el principio hasta los producto, todo el apartado de productos, y todo lo que está después del apartado de productos. Cada una de estas partes será procesada por 2 miembros del equipo y luego esas partes procesadas serán unidas al final del trabajo creando nuestro data frame de importación.
+   Ahora, sobre el trabajo en sí, debemos sacar TODA la información que tengamos de cada una de las respectivas partes e ir acumulándolas en un data frame. Todo lo que podamos sacar se debe poner en una columna. Cuanta más información saquemos, más preguntas podremos responder y exponer correctamente.
+   También deben conocer que haremos esto en 2 data frames diferentes, uno para la información del ticket (exceptuando los productos) y uno para los productos, esto significa que habrá que tener una clave común en ambos data frames y esa clave será el tercer numero de la "factura simplificada" o la factura simplicada en sí. Comprenderán a qué dato me refiero una vez leáis el primer ticket. Probaremos nuestros programas en los tickets que tiene nombres especiales (como uno que dice referencia en su nombre y otro que dice vegetales y así). Cuando todo funcione correctamente, recuerden guardar y hacer un commit para que todos los demás podamos analizar el programa.
    
-Ejecuten este codigo para cargar el primer ticket y posteriores (Debereis tener la carpeta data con la informacion de los tickets en el mismo lugar que este programa) :
+Ejecuten este codigo para cargar el primer ticket y posteriores (deberéis tener la carpeta data con la informacion de los tickets en el mismo lugar que este programa):
 ```{r}
 library(pdftools)
 library(tidyverse)
 
-fichero <- "./data/20240801 REFERENCIA Mercadona 81,34 €.pdf" #Cambien este fichero para cambiar de ticket
+fichero <- "data/20240801 REFERENCIA Mercadona 81,34 Ôé¼.pdf" #Cambien este fichero para cambiar de ticket
 data <- pdf_text(fichero)
 lineas <- str_split(data,"\n")[[1]]
 lineas
@@ -61,19 +61,19 @@ lineas
 
 
 # Parte 1
-  Esta parte le corresponde a Emma y Julen y va desde el comienzo del ticket hasta los productos (sin incluir estos ultimos)
+  Esta parte le corresponde a Emma y Julen y va desde el comienzo del ticket hasta los productos (sin incluir estos últimos).
 ```{r}
 
 ```
   
 # Parte 2
-  Esta parte le corresponde a Ivan y Yordano y abarca los productos
+  Esta parte le corresponde a Iván y Yordano y abarca los productos.
 ```{r}
 
 ```
 
 # Parte 3
-  Esta parte le corresponde a Nicolas y Sergio y abarca desde los productos(sin incluirlos) hasta el final del ticket
+  Esta parte le corresponde a Nicolás y Sergio y abarca desde los productos(sin incluirlos) hasta el final del ticket.
 ```{r}
 
 ```
