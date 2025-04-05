@@ -67,7 +67,7 @@ lineas
 ```
   
 # Parte 2
-  Esta parte le corresponde a Iván y Yordano y abarca los productos.  aaa
+  Esta parte le corresponde a Iván y Yordano y abarca los productos.
 ```{r}
 
 ```
