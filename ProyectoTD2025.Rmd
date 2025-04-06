@@ -69,7 +69,11 @@ lineas
 # Parte 2
   Esta parte le corresponde a Iván y Yordano y abarca los productos.
 ```{r}
-
+inicio <- which(grepl("Descripción", lineas, ignore.case = TRUE))
+fin <- which(grepl("Precio total|TOTAL", lineas, ignore.case = TRUE))
+lineas_productos <- lineas[(inicio + 1):(fin - 1)]
+lineas_productos <- str_replace_all(lineas_productos, ",", ".")
+lineas_productos
 ```
 
 # Parte 3
