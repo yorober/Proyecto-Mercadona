@@ -1,5 +1,5 @@
 ---
-title: "Proyecto_Mercadona"
+title: "ProyectoTD2025"
 subtitle: "Tratamiento de Datos, MiniProyecto de Mercadona"
 author: "Equipo H"
 date: "2025-03-30"
