@@ -74,6 +74,88 @@ fin <- which(grepl("Precio total|TOTAL", lineas, ignore.case = TRUE))
 lineas_productos <- lineas[(inicio + 1):(fin - 1)]
 lineas_productos <- str_replace_all(lineas_productos, ",", ".")
 lineas_productos
+
+parse_lineas_ticket <- function(lineas, id_ticket) {
+  patron_unidad <- "^\\s*(\\d+)\\s+(.+?)\\s+(\\d+\\.\\d{2})\\s*$"
+  patron_peso <- "^\\s*(\\d*\\.?\\d+)\\s*kg\\s+(\\d*\\.?\\d+)\\s*€/kg\\s+(\\d*\\.?\\d{2})\\s*$"
+
+  productos <- data.frame(
+    id_ticket = character(),
+    Producto = character(),
+    Cantidad = integer(),
+    Peso_kg = numeric(),
+    PrecioUnitario = numeric(),
+    PrecioKg = numeric(),
+    Importe = numeric(),
+    stringsAsFactors = FALSE
+  )
+  
+  nombre_categoria <- ""
+  nombre_producto <- ""
+
+  for (linea in lineas) {
+    linea_sin_trim <- linea
+    linea <- str_trim(linea)
+
+    if (str_detect(linea, patron_unidad)) {
+      datos <- str_match(linea, patron_unidad)
+      productos <- rbind(productos, data.frame(
+        id_ticket = id_ticket,
+        Producto = datos[3],
+        Cantidad = as.integer(datos[2]),
+        Peso_kg = NA,
+        PrecioUnitario = as.numeric(datos[4])/as.integer(datos[2]),
+        PrecioKg = NA,
+        Importe = as.numeric(datos[4]),
+        stringsAsFactors = FALSE
+      ))
+      
+    }
+    
+    else if (str_detect(linea_sin_trim, "^\\s{2}\\S")) {
+      nombre_categoria <- str_trim(linea_sin_trim)
+      nombre_producto <- ""
+    }
+    
+    else if (str_detect(linea_sin_trim, "^\\s{4}\\S")) {
+      nombre_categoria <- str_trim(linea_sin_trim)
+      nombre_producto <- ""
+    }
+    
+    else if (str_detect(linea_sin_trim, "^\\s{6}\\S")) {
+      nombre_producto <- str_trim(linea_sin_trim)
+    }
+    
+    else if (str_detect(linea, patron_peso)) {
+      datos <- str_match(linea, patron_peso)
+      
+      nombre_completo <- if (nombre_producto != "") {
+        if (nombre_categoria != "") {
+          paste(nombre_categoria, nombre_producto, sep = " - ")
+        } else {
+          nombre_producto
+        }
+      } else if (nombre_categoria != "") {
+        nombre_categoria
+      }
+      
+      productos <- rbind(productos, data.frame(
+        id_ticket = id_ticket,
+        Producto = nombre_completo,
+        Cantidad = NA,
+        Peso_kg = as.numeric(datos[2]),
+        PrecioUnitario = NA,
+        PrecioKg = as.numeric(datos[3]),
+        Importe = as.numeric(datos[4]),
+        stringsAsFactors = FALSE
+      ))
+    }
+    
+  }
+
+  return(productos)
+}
+productos <- parse_lineas_ticket(lineas_productos, substr(lineas[6], start = 30, stop = 45))
 ```
 
 # Parte 3
