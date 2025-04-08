@@ -52,7 +52,7 @@ Ejecuten este codigo para cargar el primer ticket y posteriores (deberéis tener
 library(pdftools)
 library(tidyverse)
 
-fichero <- "data/20240801 REFERENCIA Mercadona 81,34 Ôé¼.pdf" #Cambien este fichero para cambiar de ticket
+fichero <- "data/20231226 Mercadona 112,02.pdf" #Cambien este fichero para cambiar de ticket
 data <- pdf_text(fichero)
 lineas <- str_split(data,"\n")[[1]]
 lineas
@@ -77,6 +77,7 @@ lineas_productos
 
 parse_lineas_ticket <- function(lineas, id_ticket) {
   patron_unidad <- "^\\s*(\\d+)\\s+(.+?)\\s+(\\d+\\.\\d{2})\\s*$"
+  patron_unidad_varias <- "^\\s*(\\d+)\\s+(.+?)\\s+(\\d+\\.\\d{2})\\s+(\\d+\\.\\d{2})\\s*$"
   patron_peso <- "^\\s*(\\d*\\.?\\d+)\\s*kg\\s+(\\d*\\.?\\d+)\\s*€/kg\\s+(\\d*\\.?\\d{2})\\s*$"
 
   productos <- data.frame(
@@ -96,12 +97,27 @@ parse_lineas_ticket <- function(lineas, id_ticket) {
   for (linea in lineas) {
     linea_sin_trim <- linea
     linea <- str_trim(linea)
-
-    if (str_detect(linea, patron_unidad)) {
-      datos <- str_match(linea, patron_unidad)
+    
+    if (str_detect(linea, patron_unidad_varias)) {
+      datos <- str_match(linea, patron_unidad_varias)
       productos <- rbind(productos, data.frame(
         id_ticket = id_ticket,
         Producto = datos[3],
+        Cantidad = as.integer(datos[2]),
+        Peso_kg = NA,
+        PrecioUnitario = as.numeric(datos[4]),
+        PrecioKg = NA,
+        Importe = as.numeric(datos[5]),
+        stringsAsFactors = FALSE
+      ))
+      
+    }
+
+    else if (str_detect(linea, patron_unidad)) {
+      datos <- str_match(linea, patron_unidad)
+      productos <- rbind(productos, data.frame(
+        id_ticket = id_ticket,
+        Producto = str_trim(datos[3]),
         Cantidad = as.integer(datos[2]),
         Peso_kg = NA,
         PrecioUnitario = as.numeric(datos[4])/as.integer(datos[2]),
