@@ -1,5 +1,4 @@
 Version: 1.0
-ProjectId: 8525b833-f8f9-4d13-826a-e1f68d0908af
 
 RestoreWorkspace: Default
 SaveWorkspace: Default
@@ -12,5 +11,3 @@ Encoding: UTF-8
 
 RnwWeave: Sweave
 LaTeX: pdfLaTeX
-
-ProjectName: ProyectoTD2025

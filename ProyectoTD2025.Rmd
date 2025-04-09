@@ -177,5 +177,121 @@ productos <- parse_lineas_ticket(lineas_productos, substr(lineas[6], start = 30,
 # Parte 3
   Esta parte le corresponde a Nicolás y Sergio y abarca desde los productos(sin incluirlos) hasta el final del ticket.
 ```{r}
+library(pdftools)
+library(stringr)
+library(tibble)
+
+# Leer el PDF
+fichero <- "data/20240801 REFERENCIA Mercadona 81,34 Ôé¼.pdf"
+data <- pdf_text(fichero)
+lineas <- str_split(data, "\n")[[1]]
+lineas <- str_trim(lineas)  # Limpiar espacios
+
+# Sección productos
+inicio <- which(grepl("Descripción", lineas, ignore.case = TRUE))
+fin <- which(grepl("TOTAL \\(€\\)", lineas, ignore.case = TRUE))[1]
+lineas_final <- lineas[fin:length(lineas)]
+lineas_final <- str_replace_all(lineas_final, ",", ".")
+
+# Función para extraer valor seguro
+extraer_valor <- function(patron, texto) {
+  resultado <- str_extract(texto[grepl(patron, texto, ignore.case = TRUE)], "\\d+[.]\\d+")
+  if (length(resultado) == 0) NA else as.numeric(resultado)
+}
+
+# Extraer totales
+total <- extraer_valor("TOTAL \\(€\\)", lineas_final)
+tarjeta <- extraer_valor("TARJETA", lineas_final)
+
+# Extraer líneas de IVA (más flexible)
+iva_lineas <- lineas_final[grepl("^\\d{1,2}%\\s+\\d+[.]\\d+\\s+\\d+[.]\\d+", lineas_final)]
+iva_info <- str_match_all(iva_lineas, "^(\\d{1,2}%)\\s+(\\d+[.]\\d+)\\s+(\\d+[.]\\d+)")
+iva_info <- do.call(rbind, iva_info)
+
+# Convertir a data frame
+iva_df <- data.frame(
+  Tipo_IVA = iva_info[, 2],
+  Base_Imponible = as.numeric(iva_info[, 3]),
+  Cuota = as.numeric(iva_info[, 4])
+)
+
+# Suma total base y cuota
+Base_Imponible_Total <- sum(iva_df$Base_Imponible, na.rm = TRUE)
+Cuota_Total <- sum(iva_df$Cuota, na.rm = TRUE)
+Importe_Final <- Base_Imponible_Total + Cuota_Total
+
+# Representación tipo texto para df_info_ticket
+IVA_Tipos <- paste(iva_df$Tipo_IVA, collapse = ";")
+IVA_Bases <- paste(iva_df$Base_Imponible, collapse = ";")
+IVA_Cuotas <- paste(iva_df$Cuota, collapse = ";")
+
+
+# Factura simplificada
+factura_linea <- lineas[grepl("FACTURA SIMPLIFICADA", lineas)]
+factura <- if (length(factura_linea) > 0) str_extract(factura_linea, "\\d{4}-\\d{3}-\\d+") else NA
+
+# OP
+op_linea <- lineas[grepl("OP:", lineas)]
+op <- if (length(op_linea) > 0) str_extract(op_linea, "(?<=OP:\\s)\\d+") else NA
+
+# Teléfono
+telefono_linea <- lineas[grepl("TEL[EÉ]FONO", lineas)]
+telefono <- if (length(telefono_linea) > 0) str_extract(telefono_linea, "(?<=TEL[EÉ]FONO:\\s).*") else NA
+
+
+
+# Parking
+parking <- if (any(str_detect(lineas_final, regex("PARKING", ignore_case = TRUE)))) "SI" else "NO"
+
+# Últimos 4 dígitos de tarjeta
+tarjeta_linea <- lineas_final[grepl("TARJ\\. BANCARIA", lineas_final)]
+tarjeta_final <- if (length(tarjeta_linea) > 0) str_extract(tarjeta_linea, "\\d{4}") else NA
+
+# N.C., AUT, AID, ARC
+nc <- str_extract(lineas_final[grepl("N.C", lineas_final)], "(?<=N.C:\\s)\\d+")
+aut <- str_extract(lineas_final[grepl("AUT", lineas_final)], "(?<=AUT:\\s)\\d+")
+aid <- str_extract(lineas_final[grepl("AID", lineas_final)], "(?<=AID:\\s)[A-Z0-9]+")
+arc <- str_extract(lineas_final[grepl("ARC", lineas_final)], "(?<=ARC:\\s)\\d+")
+
+# Tipo de tarjeta (DEBIT MASTERCARD, etc.)
+tipo_tarjeta <- lineas_final[grepl("Importe:", lineas_final, ignore.case = TRUE)]
+tipo_tarjeta <- if (length(tipo_tarjeta) > 0) {
+  str_extract(tipo_tarjeta, "(DEBIT|CREDIT)\\s+[A-Z]+")
+} else {
+  NA
+}
+
+# Fecha y hora
+fecha_hora <- str_extract(lineas, "\\d{2}/\\d{2}/\\d{4}\\s+\\d{2}:\\d{2}") %>% na.omit()
+fecha <- if (length(fecha_hora) > 0) str_extract(fecha_hora, "\\d{2}/\\d{2}/\\d{4}") else NA
+hora <- if (length(fecha_hora) > 0) str_extract(fecha_hora, "\\d{2}:\\d{2}") else NA
+
+# Crear data frame final
+df_info_ticket <- tibble(
+  Factura_simplificada = factura,
+  OP = op,
+  Telefono = telefono,
+  Fecha = fecha,
+  Hora = hora,
+  Total = total,
+  Pago_Tarjeta = tarjeta,
+  Parking = parking,
+  Tarjeta_Ult4 = tarjeta_final,
+  Tipo_Tarjeta = tipo_tarjeta,
+  NC = nc,
+  AUT = aut,
+  AID = aid,
+  ARC = arc,
+  Base_Imponible_Total = Base_Imponible_Total,
+  Cuota_Total = Cuota_Total,
+  Importe_Final = Importe_Final,
+  IVA_Tipos = IVA_Tipos,
+  IVA_Bases = IVA_Bases,
+  IVA_Cuotas = IVA_Cuotas
+)
+
+# Mostrar resultado
+print(df_info_ticket)
+View(df_info_ticket)
 
 ```
