@@ -47,23 +47,97 @@ knit_hooks$set(inline=function(x) {
    Ahora, sobre el trabajo en sí, debemos sacar TODA la información que tengamos de cada una de las respectivas partes e ir acumulándolas en un data frame. Todo lo que podamos sacar se debe poner en una columna. Cuanta más información saquemos, más preguntas podremos responder y exponer correctamente.
    También deben conocer que haremos esto en 2 data frames diferentes, uno para la información del ticket (exceptuando los productos) y uno para los productos, esto significa que habrá que tener una clave común en ambos data frames y esa clave será el tercer numero de la "factura simplificada" o la factura simplicada en sí. Comprenderán a qué dato me refiero una vez leáis el primer ticket. Probaremos nuestros programas en los tickets que tiene nombres especiales (como uno que dice referencia en su nombre y otro que dice vegetales y así). Cuando todo funcione correctamente, recuerden guardar y hacer un commit para que todos los demás podamos analizar el programa.
    
-Ejecuten este codigo para cargar el primer ticket y posteriores (deberéis tener la carpeta data con la informacion de los tickets en el mismo lugar que este programa):
+Ejecuten este codigo para cargar los tickets:
+
+## Esta funcion encuentra todos los tickets validos
+  
+```{r}
+library(fs)       # para listar archivos
+library(purrr)    # para aplicar funciones a listas
+library(pdftools)
+library(stringr)
+library(tibble)
+
+# Obtener todos los archivos PDF en la carpeta data
+archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
+
+# Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
+es_ticket_mercadona <- function(fichero) {
+  lineas <- tryCatch({
+    pdf_text(fichero) %>% str_split("\n") %>% .[[1]] %>% str_trim()
+  }, error = function(e) return(character(0)))
+  
+  if (length(lineas) == 0) return(FALSE)
+  
+  return(str_detect(lineas[1], regex("MERCADONA,\\s*S\\.A\\.", ignore_case = TRUE)))
+}
+
+# Lista filtrada
+tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
+
+```
+
+
+## Funcion para leer todos los tickets
 ```{r}
 library(pdftools)
 library(tidyverse)
 
-fichero <- "data/20231226 Mercadona 112,02.pdf" #Cambien este fichero para cambiar de ticket
-data <- pdf_text(fichero)
-lineas <- str_split(data,"\n")[[1]]
-lineas
-
+#Esta funcion lee los tickets uno a uno y los guarda en una lista (visualizacion)
+lista_info_parte1 <- list()
+for (ticket_pdf in tickets_mercadona) {
+  fichero <- ticket_pdf
+  data <- pdf_text(fichero)
+  lineas <- str_split(data,"\n")[[1]]
+    
+    # Guardar la información extraída en la lista
+    lista_info_parte1[[ticket_pdf]] <- lineas
+}
 ```
 
+
+## Fichero de referencia
+```{r}
+fichero <- "./data/20240801 REFERENCIA Mercadona 81,34 Ôé¼.pdf"
+  data <- pdf_text(fichero)
+  lineas <- str_split(data,"\n")[[1]]
+```
 
 # Parte 1
   Esta parte le corresponde a Emma y Julen y va desde el comienzo del ticket hasta los productos (sin incluir estos últimos).
 ```{r}
 
+extraer_info_ticket_parte1 <- function(lineas){
+  
+  info <- list()
+  
+  # Fecha y hora
+  fecha_hora <- str_extract(lineas, "\\d{2}/\\d{2}/\\d{4}\\s+\\d{2}:\\d{2}") %>% na.omit()
+  fecha <- if (length(fecha_hora) > 0) str_extract(fecha_hora, "\\d{2}/\\d{2}/\\d{4}") else NA
+  hora <- if (length(fecha_hora) > 0) str_extract(fecha_hora, "\\d{2}:\\d{2}") else NA
+  
+  # Factura simplificada
+  factura_linea <- lineas[grepl("FACTURA SIMPLIFICADA", lineas)]
+  factura <- if (length(factura_linea) > 0) str_extract(factura_linea, "\\d{4}-\\d{3}-\\d+") else NA
+  
+  # OP
+  op_linea <- lineas[grepl("OP:", lineas)]
+  op <- if (length(op_linea) > 0) str_extract(op_linea, "(?<=OP:\\s)\\d+") else NA
+  
+  # Teléfono
+  telefono_linea <- lineas[grepl("TEL[EÉ]FONO", lineas)]
+  telefono <- if (length(telefono_linea) > 0) str_extract(telefono_linea, "(?<=TEL[EÉ]FONO:\\s).*") else NA
+    
+  
+  # Crear data frame final
+  df_info_ticket_parte1 <- tibble(
+    Factura_simplificada = factura,
+    OP = op,
+    Telefono = telefono,
+    Fecha = fecha,
+    Hora = hora)
+
+}
 ```
   
 # Parte 2
