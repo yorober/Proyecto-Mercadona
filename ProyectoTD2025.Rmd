@@ -57,6 +57,8 @@ library(purrr)    # para aplicar funciones a listas
 library(pdftools)
 library(stringr)
 library(tibble)
+library(hms)
+library(lubridate)
 
 # Obtener todos los archivos PDF en la carpeta data
 archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
@@ -112,6 +114,8 @@ fichero <- "./data/20240801 REFERENCIA Mercadona 81,34 Ôé¼.pdf"
   fecha_hora <- str_extract(lineas, "\\d{2}/\\d{2}/\\d{4}\\s+\\d{2}:\\d{2}") %>% na.omit()
   fecha <- if (length(fecha_hora) > 0) str_extract(fecha_hora, "\\d{2}/\\d{2}/\\d{4}") else NA
   hora <- if (length(fecha_hora) > 0) str_extract(fecha_hora, "\\d{2}:\\d{2}") else NA
+  hora <- paste0(hora,":00")
+  hora <- as_hms(hora)
   
   # Factura simplificada
   factura_linea <- lineas[grepl("FACTURA SIMPLIFICADA", lineas)]
@@ -141,12 +145,12 @@ fichero <- "./data/20240801 REFERENCIA Mercadona 81,34 Ôé¼.pdf"
   # Crear data frame final
   df_info_ticket_parte1 <- tibble(
     Factura_simplificada = factura,
-    OP = op,
-    Telefono = telefono,
-    Fecha = fecha,
+    OP = as.numeric(op),
+    Telefono = as.numeric(telefono),
+    Fecha = as.Date(fecha, format = "%d/%m/%Y"),
     Hora = hora,
     Calle = Calle,
-    C.Postal = C.Postal,
+    C.Postal = as.numeric(C.Postal),
     Municipio = Municipio)
 
 
@@ -264,20 +268,12 @@ productos <- parse_lineas_ticket(lineas_productos, substr(lineas[6], start = 30,
 # Parte 3
   Esta parte le corresponde a Nicolás y Sergio y abarca desde los productos(sin incluirlos) hasta el final del ticket.
 ```{r}
-library(pdftools)
-library(stringr)
-library(tibble)
-
 # Leer el PDF
-fichero <- "data/20240801 REFERENCIA Mercadona 81,34 Ôé¼.pdf"
-data <- pdf_text(fichero)
-lineas <- str_split(data, "\n")[[1]]
 lineas <- str_trim(lineas)  # Limpiar espacios
 
-# Sección productos
-inicio <- which(grepl("Descripción", lineas, ignore.case = TRUE))
-fin <- which(grepl("TOTAL \\(€\\)", lineas, ignore.case = TRUE))[1]
-lineas_final <- lineas[fin:length(lineas)]
+# Sección final
+inicio <- which(grepl("TOTAL \\(€\\)", lineas, ignore.case = TRUE))[1]
+lineas_final <- lineas[inicio:length(lineas)]
 lineas_final <- str_replace_all(lineas_final, ",", ".")
 
 # Función para extraer valor seguro
@@ -312,21 +308,6 @@ IVA_Tipos <- paste(iva_df$Tipo_IVA, collapse = ";")
 IVA_Bases <- paste(iva_df$Base_Imponible, collapse = ";")
 IVA_Cuotas <- paste(iva_df$Cuota, collapse = ";")
 
-
-# Factura simplificada
-factura_linea <- lineas[grepl("FACTURA SIMPLIFICADA", lineas)]
-factura <- if (length(factura_linea) > 0) str_extract(factura_linea, "\\d{4}-\\d{3}-\\d+") else NA
-
-# OP
-op_linea <- lineas[grepl("OP:", lineas)]
-op <- if (length(op_linea) > 0) str_extract(op_linea, "(?<=OP:\\s)\\d+") else NA
-
-# Teléfono
-telefono_linea <- lineas[grepl("TEL[EÉ]FONO", lineas)]
-telefono <- if (length(telefono_linea) > 0) str_extract(telefono_linea, "(?<=TEL[EÉ]FONO:\\s).*") else NA
-
-
-
 # Parking
 parking <- if (any(str_detect(lineas_final, regex("PARKING", ignore_case = TRUE)))) "SI" else "NO"
 
@@ -348,30 +329,21 @@ tipo_tarjeta <- if (length(tipo_tarjeta) > 0) {
   NA
 }
 
-# Fecha y hora
-fecha_hora <- str_extract(lineas, "\\d{2}/\\d{2}/\\d{4}\\s+\\d{2}:\\d{2}") %>% na.omit()
-fecha <- if (length(fecha_hora) > 0) str_extract(fecha_hora, "\\d{2}/\\d{2}/\\d{4}") else NA
-hora <- if (length(fecha_hora) > 0) str_extract(fecha_hora, "\\d{2}:\\d{2}") else NA
-
 # Crear data frame final
 df_info_ticket <- tibble(
-  Factura_simplificada = factura,
-  OP = op,
-  Telefono = telefono,
-  Fecha = fecha,
-  Hora = hora,
-  Total = total,
-  Pago_Tarjeta = tarjeta,
+
+  Total = as.numeric(total),
+  Pago_Tarjeta = as.numeric(tarjeta),
   Parking = parking,
-  Tarjeta_Ult4 = tarjeta_final,
+  Tarjeta_Ult4 = as.numeric(tarjeta_final),
   Tipo_Tarjeta = tipo_tarjeta,
   NC = nc,
   AUT = aut,
   AID = aid,
   ARC = arc,
-  Base_Imponible_Total = Base_Imponible_Total,
-  Cuota_Total = Cuota_Total,
-  Importe_Final = Importe_Final,
+  Base_Imponible_Total = as.numeric(Base_Imponible_Total),
+  Cuota_Total = as.numeric(Cuota_Total),
+  Importe_Final = as.numeric (Importe_Final),
   IVA_Tipos = IVA_Tipos,
   IVA_Bases = IVA_Bases,
   IVA_Cuotas = IVA_Cuotas
