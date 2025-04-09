@@ -109,7 +109,7 @@ fichero <- "./data/20240801 REFERENCIA Mercadona 81,34 Ôé¼.pdf"
 # Parte 1
   Esta parte le corresponde a Emma y Julen y va desde el comienzo del ticket hasta los productos (sin incluir estos últimos).
 ```{r}
-  
+funcion_df_parte1 <- function(lineas){  
   # Fecha y hora
   fecha_hora <- str_extract(lineas, "\\d{2}/\\d{2}/\\d{4}\\s+\\d{2}:\\d{2}") %>% na.omit()
   fecha <- if (length(fecha_hora) > 0) str_extract(fecha_hora, "\\d{2}/\\d{2}/\\d{4}") else NA
@@ -153,13 +153,16 @@ fichero <- "./data/20240801 REFERENCIA Mercadona 81,34 Ôé¼.pdf"
     C.Postal = as.numeric(C.Postal),
     Municipio = Municipio)
 
+ return(df_info_ticket_parte1)
+}
 
-
+df_info_ticket_parte1 <- funcion_df_parte1(lineas)
 ```
   
 # Parte 2
   Esta parte le corresponde a Iván y Yordano y abarca los productos.
 ```{r}
+
 inicio <- which(grepl("Descripción", lineas, ignore.case = TRUE))
 fin <- which(grepl("Precio total|TOTAL", lineas, ignore.case = TRUE))
 lineas_productos <- lineas[(inicio + 1):(fin - 1)]
@@ -263,94 +266,178 @@ parse_lineas_ticket <- function(lineas, id_ticket) {
   return(productos)
 }
 productos <- parse_lineas_ticket(lineas_productos, substr(lineas[6], start = 30, stop = 45))
+
 ```
 
 # Parte 3
   Esta parte le corresponde a Nicolás y Sergio y abarca desde los productos(sin incluirlos) hasta el final del ticket.
 ```{r}
-# Leer el PDF
-lineas <- str_trim(lineas)  # Limpiar espacios
+funcion_df_parte3 <- function(lineas){
+  # Leer el PDF
+  lineas <- str_trim(lineas)  # Limpiar espacios
+  
+  # Sección final
+  inicio <- which(grepl("TOTAL \\(€\\)", lineas, ignore.case = TRUE))[1]
+  lineas_final <- lineas[inicio:length(lineas)]
+  lineas_final <- str_replace_all(lineas_final, ",", ".")
+  
+  # Función para extraer valor seguro
+  extraer_valor <- function(patron, texto) {
+    resultado <- str_extract(texto[grepl(patron, texto, ignore.case = TRUE)], "\\d+[.]\\d+")
+    if (length(resultado) == 0) NA else as.numeric(resultado)
+  }
+  
+  # Extraer totales
+  total <- extraer_valor("TOTAL \\(€\\)", lineas_final)
+  tarjeta <- extraer_valor("TARJETA", lineas_final)
+  
+  # Extraer líneas de IVA (más flexible)
+  iva_lineas <- lineas_final[grepl("^\\d{1,2}%\\s+\\d+[.]\\d+\\s+\\d+[.]\\d+", lineas_final)]
+  iva_info <- str_match_all(iva_lineas, "^(\\d{1,2}%)\\s+(\\d+[.]\\d+)\\s+(\\d+[.]\\d+)")
+  iva_info <- do.call(rbind, iva_info)
+  
+  # Convertir a data frame
+  iva_df <- data.frame(
+    Tipo_IVA = iva_info[, 2],
+    Base_Imponible = as.numeric(iva_info[, 3]),
+    Cuota = as.numeric(iva_info[, 4])
+  )
+  
+  # Suma total base y cuota
+  Base_Imponible_Total <- sum(iva_df$Base_Imponible, na.rm = TRUE)
+  Cuota_Total <- sum(iva_df$Cuota, na.rm = TRUE)
+  Importe_Final <- Base_Imponible_Total + Cuota_Total
+  
+  # Representación tipo texto para df_info_ticket
+  IVA_Tipos <- paste(iva_df$Tipo_IVA, collapse = ";")
+  IVA_Bases <- paste(iva_df$Base_Imponible, collapse = ";")
+  IVA_Cuotas <- paste(iva_df$Cuota, collapse = ";")
+  
+  # Parking
+  parking <- if (any(str_detect(lineas_final, regex("PARKING", ignore_case = TRUE)))) "SI" else "NO"
+  
+  # Últimos 4 dígitos de tarjeta
+  tarjeta_linea <- lineas_final[grepl("TARJ\\. BANCARIA", lineas_final)]
+  tarjeta_final <- if (length(tarjeta_linea) > 0) str_extract(tarjeta_linea, "\\d{4}") else NA
+  
+  # N.C., AUT, AID, ARC
+  nc <- str_extract(lineas_final[grepl("N.C", lineas_final)], "(?<=N.C:\\s)\\d+")
+  aut <- str_extract(lineas_final[grepl("AUT", lineas_final)], "(?<=AUT:\\s)\\d+")
+  aid <- str_extract(lineas_final[grepl("AID", lineas_final)], "(?<=AID:\\s)[A-Z0-9]+")
+  arc <- str_extract(lineas_final[grepl("ARC", lineas_final)], "(?<=ARC:\\s)\\d+")
+  
+  # Tipo de tarjeta (DEBIT MASTERCARD, etc.)
+  tipo_tarjeta <- lineas_final[grepl("Importe:", lineas_final, ignore.case = TRUE)]
+  tipo_tarjeta <- if (length(tipo_tarjeta) > 0) {
+    str_extract(tipo_tarjeta, "(DEBIT|CREDIT)\\s+[A-Z]+")
+  } else {
+    NA
+  }
+  
+  # Crear data frame final
+  df_info_ticket <- tibble(
+  
+    Total = as.numeric(total),
+    Pago_Tarjeta = as.numeric(tarjeta),
+    Parking = parking,
+    Tarjeta_Ult4 = as.numeric(tarjeta_final),
+    Tipo_Tarjeta = tipo_tarjeta,
+    NC = nc,
+    AUT = aut,
+    AID = aid,
+    ARC = arc,
+    Base_Imponible_Total = as.numeric(Base_Imponible_Total),
+    Cuota_Total = as.numeric(Cuota_Total),
+    Importe_Final = as.numeric (Importe_Final),
+    IVA_Tipos = IVA_Tipos,
+    IVA_Bases = IVA_Bases,
+    IVA_Cuotas = IVA_Cuotas
+  )
 
-# Sección final
-inicio <- which(grepl("TOTAL \\(€\\)", lineas, ignore.case = TRUE))[1]
-lineas_final <- lineas[inicio:length(lineas)]
-lineas_final <- str_replace_all(lineas_final, ",", ".")
-
-# Función para extraer valor seguro
-extraer_valor <- function(patron, texto) {
-  resultado <- str_extract(texto[grepl(patron, texto, ignore.case = TRUE)], "\\d+[.]\\d+")
-  if (length(resultado) == 0) NA else as.numeric(resultado)
+  return(df_info_ticket)
 }
 
-# Extraer totales
-total <- extraer_valor("TOTAL \\(€\\)", lineas_final)
-tarjeta <- extraer_valor("TARJETA", lineas_final)
-
-# Extraer líneas de IVA (más flexible)
-iva_lineas <- lineas_final[grepl("^\\d{1,2}%\\s+\\d+[.]\\d+\\s+\\d+[.]\\d+", lineas_final)]
-iva_info <- str_match_all(iva_lineas, "^(\\d{1,2}%)\\s+(\\d+[.]\\d+)\\s+(\\d+[.]\\d+)")
-iva_info <- do.call(rbind, iva_info)
-
-# Convertir a data frame
-iva_df <- data.frame(
-  Tipo_IVA = iva_info[, 2],
-  Base_Imponible = as.numeric(iva_info[, 3]),
-  Cuota = as.numeric(iva_info[, 4])
-)
-
-# Suma total base y cuota
-Base_Imponible_Total <- sum(iva_df$Base_Imponible, na.rm = TRUE)
-Cuota_Total <- sum(iva_df$Cuota, na.rm = TRUE)
-Importe_Final <- Base_Imponible_Total + Cuota_Total
-
-# Representación tipo texto para df_info_ticket
-IVA_Tipos <- paste(iva_df$Tipo_IVA, collapse = ";")
-IVA_Bases <- paste(iva_df$Base_Imponible, collapse = ";")
-IVA_Cuotas <- paste(iva_df$Cuota, collapse = ";")
-
-# Parking
-parking <- if (any(str_detect(lineas_final, regex("PARKING", ignore_case = TRUE)))) "SI" else "NO"
-
-# Últimos 4 dígitos de tarjeta
-tarjeta_linea <- lineas_final[grepl("TARJ\\. BANCARIA", lineas_final)]
-tarjeta_final <- if (length(tarjeta_linea) > 0) str_extract(tarjeta_linea, "\\d{4}") else NA
-
-# N.C., AUT, AID, ARC
-nc <- str_extract(lineas_final[grepl("N.C", lineas_final)], "(?<=N.C:\\s)\\d+")
-aut <- str_extract(lineas_final[grepl("AUT", lineas_final)], "(?<=AUT:\\s)\\d+")
-aid <- str_extract(lineas_final[grepl("AID", lineas_final)], "(?<=AID:\\s)[A-Z0-9]+")
-arc <- str_extract(lineas_final[grepl("ARC", lineas_final)], "(?<=ARC:\\s)\\d+")
-
-# Tipo de tarjeta (DEBIT MASTERCARD, etc.)
-tipo_tarjeta <- lineas_final[grepl("Importe:", lineas_final, ignore.case = TRUE)]
-tipo_tarjeta <- if (length(tipo_tarjeta) > 0) {
-  str_extract(tipo_tarjeta, "(DEBIT|CREDIT)\\s+[A-Z]+")
-} else {
-  NA
-}
-
-# Crear data frame final
-df_info_ticket <- tibble(
-
-  Total = as.numeric(total),
-  Pago_Tarjeta = as.numeric(tarjeta),
-  Parking = parking,
-  Tarjeta_Ult4 = as.numeric(tarjeta_final),
-  Tipo_Tarjeta = tipo_tarjeta,
-  NC = nc,
-  AUT = aut,
-  AID = aid,
-  ARC = arc,
-  Base_Imponible_Total = as.numeric(Base_Imponible_Total),
-  Cuota_Total = as.numeric(Cuota_Total),
-  Importe_Final = as.numeric (Importe_Final),
-  IVA_Tipos = IVA_Tipos,
-  IVA_Bases = IVA_Bases,
-  IVA_Cuotas = IVA_Cuotas
-)
-
-# Mostrar resultado
-print(df_info_ticket)
-View(df_info_ticket)
 
 ```
+
+
+```{r}
+# Obtener todos los archivos PDF en la carpeta data
+archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
+
+# Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
+es_ticket_mercadona <- function(fichero) {
+  lineas <- tryCatch({
+    pdf_text(fichero) %>% str_split("\n") %>% .[[1]] %>% str_trim()
+  }, error = function(e) return(character(0)))
+  
+  if (length(lineas) == 0) return(FALSE)
+  
+  return(str_detect(lineas[1], regex("MERCADONA,\\s*S\\.A\\.", ignore_case = TRUE)))
+}
+
+# Lista filtrada
+tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
+
+
+df_info_ticket_parte1 <- data.frame(
+    Factura_simplificada = character(),
+    OP = numeric(),
+    Telefono = numeric(),
+    Fecha = Date(),
+    Hora = character(),
+    Calle = character(),
+    C.Postal = numeric(),
+    Municipio = character())
+
+productos <- data.frame(
+    id_ticket = character(),
+    Producto = character(),
+    Cantidad = integer(),
+    Peso_kg = numeric(),
+    PrecioUnitario = numeric(),
+    PrecioKg = numeric(),
+    Importe = numeric(),
+    stringsAsFactors = FALSE)
+
+df_info_ticket <- data.frame(
+  
+    Total = numeric(),
+    Pago_Tarjeta = numeric(),
+    Parking = character(),
+    Tarjeta_Ult4 = numeric(),
+    Tipo_Tarjeta = character(),
+    NC = character(),
+    AUT = character(),
+    AID = character(),
+    ARC = character(),
+    Base_Imponible_Total = numeric(),
+    Cuota_Total = numeric(),
+    Importe_Final = numeric(),
+    IVA_Tipos = character(),
+    IVA_Bases = character(),
+    IVA_Cuotas = character()
+  )
+
+#Esta funcion lee los tickets uno a uno y los guarda en una lista (visualizacion)
+lista_info_parte1 <- list()
+for (ticket_pdf in tickets_mercadona) {
+  fichero <- ticket_pdf
+  data <- pdf_text(fichero)
+  lineas <- str_split(data,"\n")[[1]]
+  
+  inicio <- which(grepl("Descripción", lineas, ignore.case = TRUE))
+  fin <- which(grepl("Precio total|TOTAL", lineas, ignore.case = TRUE))
+  lineas_productos <- lineas[(inicio + 1):(fin - 1)]
+  lineas_productos <- str_replace_all(lineas_productos, ",", ".")
+    
+  parte1 <- funcion_df_parte1(lineas)
+  productosUWU <- parse_lineas_ticket(lineas_productos, substr(lineas[6], start = 30, stop = 45))
+  parte3 <- funcion_df_parte3(lineas)
+  
+  DF_INFO <- rbind(df_info_ticket_parte1,parte1)
+  DF_Productos <- rbind(productos,productosUWU)
+  DF_INFO2 <- rbind(df_info_ticket,parte3)
+}
+```
+
