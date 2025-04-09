@@ -101,15 +101,12 @@ for (ticket_pdf in tickets_mercadona) {
 fichero <- "./data/20240801 REFERENCIA Mercadona 81,34 Ôé¼.pdf"
   data <- pdf_text(fichero)
   lineas <- str_split(data,"\n")[[1]]
+  lineas
 ```
 
 # Parte 1
   Esta parte le corresponde a Emma y Julen y va desde el comienzo del ticket hasta los productos (sin incluir estos últimos).
 ```{r}
-
-extraer_info_ticket_parte1 <- function(lineas){
-  
-  info <- list()
   
   # Fecha y hora
   fecha_hora <- str_extract(lineas, "\\d{2}/\\d{2}/\\d{4}\\s+\\d{2}:\\d{2}") %>% na.omit()
@@ -124,6 +121,18 @@ extraer_info_ticket_parte1 <- function(lineas){
   op_linea <- lineas[grepl("OP:", lineas)]
   op <- if (length(op_linea) > 0) str_extract(op_linea, "(?<=OP:\\s)\\d+") else NA
   
+  # Calle
+  Calle_linea <- lineas[2]
+  Calle <- if (length(Calle_linea) > 0) str_trim(Calle_linea) else NA
+  
+  # C.Postal
+  C.Postal_linea <- str_trim(lineas[3])
+  C.Postal <- if (length(telefono_linea) > 0) substr(C.Postal_linea, start = 1, stop = 5) else NA
+  
+  # Municipio
+  Municipio_linea <- str_trim(lineas[3])
+  Municipio <- if (length(telefono_linea) > 0) substring(Municipio_linea, first = 7) else NA
+  
   # Teléfono
   telefono_linea <- lineas[grepl("TEL[EÉ]FONO", lineas)]
   telefono <- if (length(telefono_linea) > 0) str_extract(telefono_linea, "(?<=TEL[EÉ]FONO:\\s).*") else NA
@@ -135,9 +144,13 @@ extraer_info_ticket_parte1 <- function(lineas){
     OP = op,
     Telefono = telefono,
     Fecha = fecha,
-    Hora = hora)
+    Hora = hora,
+    Calle = Calle,
+    C.Postal = C.Postal,
+    Municipio = Municipio)
 
-}
+
+
 ```
   
 # Parte 2
