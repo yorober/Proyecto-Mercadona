@@ -60,7 +60,22 @@ library(tibble)
 library(hms)
 library(lubridate)
 
-
+# Obtener todos los archivos PDF en la carpeta data
+ archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
+ 
+ # Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
+ es_ticket_mercadona <- function(fichero) {
+   lineas <- tryCatch({
+     pdf_text(fichero) %>% str_split("\n") %>% .[[1]] %>% str_trim()
+   }, error = function(e) return(character(0)))
+   
+   if (length(lineas) == 0) return(FALSE)
+   
+   return(str_detect(lineas[1], regex("MERCADONA,\\s*S\\.A\\.", ignore_case = TRUE)))
+ }
+ 
+ # Lista filtrada
+ tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
 ```
 
 # Parte 1
@@ -280,11 +295,9 @@ funcion_df_parte3 <- function(lineas){
   tarjeta_final <- if (length(tarjeta_linea) > 0) str_extract(tarjeta_linea, "\\d{4}") else NA
   
   # N.C., AUT, AID, ARC
-<<<<<<< HEAD
+
   nc <- str_extract(lineas_final[grepl("^\\s*N\\.C\\s*:", lineas_final)], "(?<=N\\.C:\\s)\\d+")
-=======
-  nc <- str_extract(lineas_final[grepl("^\\s*N\\.C\\s*:", lineas_final)], "(?<=N.C:\\s)\\d+")
->>>>>>> 6ae2c6eae54804e91de5d4527e5e4c3ef3c51fbd
+
   aut <- str_extract(lineas_final[grepl("AUT", lineas_final)], "(?<=AUT:\\s)\\d+")
   aid <- str_extract(lineas_final[grepl("AID", lineas_final)], "(?<=AID:\\s)[A-Z0-9]+")
   arc <- str_extract(lineas_final[grepl("ARC", lineas_final)], "(?<=ARC:\\s)\\d+")
@@ -292,11 +305,8 @@ funcion_df_parte3 <- function(lineas){
   # Tipo de tarjeta (DEBIT MASTERCARD, etc.)
   tipo_tarjeta <- lineas_final[grepl("Importe:", lineas_final, ignore.case = TRUE)]
   tipo_tarjeta <- if (length(tipo_tarjeta) > 0) {
-<<<<<<< HEAD
-    str_extract(tipo_tarjeta, "(?<=\\d\\s)\\w+")
-=======
-    str_extract(tipo_tarjeta, "(DEBIT|CREDIT|CONTADO|VISA|MASTERCARD)\\s+[A-Z]+")
->>>>>>> 6ae2c6eae54804e91de5d4527e5e4c3ef3c51fbd
+    str_extract(tipo_tarjeta, "(\\b[[:alnum:].-]+\\b)(?:\\s+\\b[[:alnum:].-]+\\b)?$")
+    
   } else {
     NA
   }
@@ -324,7 +334,7 @@ funcion_df_parte3 <- function(lineas){
   return(df_info_ticket)
 }
 
-fichero <- "data/20231125 Mercadona 37,76 Ôé¼.pdf"
+fichero <- tickets_mercadona[2]
   data <- pdf_text(fichero)
   lineas <- str_split(data,"\n")[[1]] 
   
