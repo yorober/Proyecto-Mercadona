@@ -61,6 +61,7 @@ library(hms)
 library(lubridate)
 
 # Obtener todos los archivos PDF en la carpeta data
+<<<<<<< HEAD
 archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
 
 # Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
@@ -76,6 +77,23 @@ es_ticket_mercadona <- function(fichero) {
 
 # Lista filtrada
 tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
+=======
+ archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
+ 
+ # Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
+ es_ticket_mercadona <- function(fichero) {
+   lineas <- tryCatch({
+     pdf_text(fichero) %>% str_split("\n") %>% .[[1]] %>% str_trim()
+   }, error = function(e) return(character(0)))
+   
+   if (length(lineas) == 0) return(FALSE)
+   
+   return(str_detect(lineas[1], regex("MERCADONA,\\s*S\\.A\\.", ignore_case = TRUE)))
+ }
+ 
+ # Lista filtrada
+ tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
+>>>>>>> 4feb057355cd4b8db34ffec0b525e5609fe2a56e
 ```
 
 # Parte 1
@@ -242,6 +260,8 @@ funcion_df_parte3 <- function(lineas){
   # Leer el PDF
   lineas <- str_trim(lineas)  # Limpiar espacios
   
+  
+  
   # Sección final
   inicio <- which(grepl("TOTAL \\(€\\)", lineas, ignore.case = TRUE))[1]
   
@@ -288,7 +308,9 @@ funcion_df_parte3 <- function(lineas){
   tarjeta_final <- if (length(tarjeta_linea) > 0) str_extract(tarjeta_linea, "\\d{4}") else NA
   
   # N.C., AUT, AID, ARC
-  nc <- str_extract(lineas_final[grepl("^\\s*N\\.C\\s*:", lineas_final)], "(?<=N.C:\\s)\\d+")
+
+  nc <- str_extract(lineas_final[grepl("^\\s*N\\.C\\s*:", lineas_final)], "(?<=N\\.C:\\s)\\d+")
+
   aut <- str_extract(lineas_final[grepl("AUT", lineas_final)], "(?<=AUT:\\s)\\d+")
   aid <- str_extract(lineas_final[grepl("AID", lineas_final)], "(?<=AID:\\s)[A-Z0-9]+")
   arc <- str_extract(lineas_final[grepl("ARC", lineas_final)], "(?<=ARC:\\s)\\d+")
@@ -296,7 +318,8 @@ funcion_df_parte3 <- function(lineas){
   # Tipo de tarjeta (DEBIT MASTERCARD, etc.)
   tipo_tarjeta <- lineas_final[grepl("Importe:", lineas_final, ignore.case = TRUE)]
   tipo_tarjeta <- if (length(tipo_tarjeta) > 0) {
-    str_extract(tipo_tarjeta, "(DEBIT|CREDIT|CONTADO|VISA|MASTERCARD)\\s+[A-Z]+")
+    str_extract(tipo_tarjeta, "(\\b[[:alnum:].-]+\\b)(?:\\s+\\b[[:alnum:].-]+\\b)?$")
+    
   } else {
     NA
   }
@@ -323,11 +346,20 @@ funcion_df_parte3 <- function(lineas){
 
   return(df_info_ticket)
 }
+<<<<<<< HEAD
 fichero <- tickets_mercadona[1]
 data <- pdf_text(fichero)
 lineas <- str_split(data, "\n")[[1]]
 prueba <- parse_lineas_ticket(lineas)
 
+=======
+
+fichero <- tickets_mercadona[2]
+  data <- pdf_text(fichero)
+  lineas <- str_split(data,"\n")[[1]] 
+  
+prueba <- funcion_df_parte3(lineas)
+>>>>>>> 4feb057355cd4b8db34ffec0b525e5609fe2a56e
 ```
 
 
