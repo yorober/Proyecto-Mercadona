@@ -276,6 +276,8 @@ funcion_df_parte3 <- function(lineas){
   # Leer el PDF
   lineas <- str_trim(lineas)  # Limpiar espacios
   
+  
+  
   # Sección final
   inicio <- which(grepl("TOTAL \\(€\\)", lineas, ignore.case = TRUE))[1]
   lineas_final <- lineas[inicio:length(lineas)]
@@ -321,7 +323,7 @@ funcion_df_parte3 <- function(lineas){
   tarjeta_final <- if (length(tarjeta_linea) > 0) str_extract(tarjeta_linea, "\\d{4}") else NA
   
   # N.C., AUT, AID, ARC
-  nc <- str_extract(lineas_final[grepl("N.C", lineas_final)], "(?<=N.C:\\s)\\d+")
+  nc <- str_extract(lineas_final[grepl("^\\s*N\\.C\\s*:", lineas_final)], "(?<=N\\.C:\\s)\\d+")
   aut <- str_extract(lineas_final[grepl("AUT", lineas_final)], "(?<=AUT:\\s)\\d+")
   aid <- str_extract(lineas_final[grepl("AID", lineas_final)], "(?<=AID:\\s)[A-Z0-9]+")
   arc <- str_extract(lineas_final[grepl("ARC", lineas_final)], "(?<=ARC:\\s)\\d+")
@@ -329,7 +331,7 @@ funcion_df_parte3 <- function(lineas){
   # Tipo de tarjeta (DEBIT MASTERCARD, etc.)
   tipo_tarjeta <- lineas_final[grepl("Importe:", lineas_final, ignore.case = TRUE)]
   tipo_tarjeta <- if (length(tipo_tarjeta) > 0) {
-    str_extract(tipo_tarjeta, "(DEBIT|CREDIT)\\s+[A-Z]+")
+    str_extract(tipo_tarjeta, "(?<=\\d\\s)\\w+")
   } else {
     NA
   }
@@ -357,7 +359,11 @@ funcion_df_parte3 <- function(lineas){
   return(df_info_ticket)
 }
 
-
+fichero <- "data/20231125 Mercadona 37,76 Ôé¼.pdf"
+  data <- pdf_text(fichero)
+  lineas <- str_split(data,"\n")[[1]] 
+  
+prueba <- funcion_df_parte3(lineas)
 ```
 
 
