@@ -61,7 +61,6 @@ library(hms)
 library(lubridate)
 
 # Obtener todos los archivos PDF en la carpeta data
-<<<<<<< HEAD
 archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
 
 # Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
@@ -77,23 +76,7 @@ es_ticket_mercadona <- function(fichero) {
 
 # Lista filtrada
 tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
-=======
- archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
- 
- # Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
- es_ticket_mercadona <- function(fichero) {
-   lineas <- tryCatch({
-     pdf_text(fichero) %>% str_split("\n") %>% .[[1]] %>% str_trim()
-   }, error = function(e) return(character(0)))
-   
-   if (length(lineas) == 0) return(FALSE)
-   
-   return(str_detect(lineas[1], regex("MERCADONA,\\s*S\\.A\\.", ignore_case = TRUE)))
- }
- 
- # Lista filtrada
- tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
->>>>>>> 4feb057355cd4b8db34ffec0b525e5609fe2a56e
+
 ```
 
 # Parte 1
@@ -129,15 +112,12 @@ funcion_df_parte1 <- function(lineas){
   
   # Municipio
   Municipio_linea <- str_trim(lineas[3])
-<<<<<<< HEAD
   Municipio <- if (length(Municipio_linea) > 0) substring(Municipio_linea, first = 7) else NA
   
   # Teléfono
   telefono_linea <- lineas[grepl("TEL[EÉ]FONO", lineas)]
   telefono <- if (length(telefono_linea) > 0) str_extract(telefono_linea, "(?<=TEL[EÉ]FONO:\\s).*") else NA
-=======
-  Municipio <- if (length(telefono_linea) > 0) substring(Municipio_linea, first = 7) else NA
->>>>>>> c044b7c64f6b069ac8b5dca6b3f66269202cf1ee
+
     
   
   # Crear data frame final
@@ -153,10 +133,7 @@ funcion_df_parte1 <- function(lineas){
 
  return(df_info_ticket_parte1)
 }
-<<<<<<< HEAD
 
-=======
->>>>>>> c044b7c64f6b069ac8b5dca6b3f66269202cf1ee
 ```
   
 # Parte 2
@@ -358,20 +335,11 @@ funcion_df_parte3 <- function(lineas){
 
   return(df_info_ticket)
 }
-<<<<<<< HEAD
+
 fichero <- tickets_mercadona[1]
 data <- pdf_text(fichero)
 lineas <- str_split(data, "\n")[[1]]
 prueba <- parse_lineas_ticket(lineas)
-
-=======
-
-fichero <- tickets_mercadona[2]
-  data <- pdf_text(fichero)
-  lineas <- str_split(data,"\n")[[1]] 
-  
-prueba <- funcion_df_parte3(lineas)
->>>>>>> 4feb057355cd4b8db34ffec0b525e5609fe2a56e
 ```
 
 
