@@ -66,7 +66,7 @@ library(tidyverse)
  archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
  
  # Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
-<<<<<<< HEAD
+
 es_ticket_valido <- function(fichero) {
   # Excluye archivos con nombres corruptos
   if (str_detect(fichero, "O╠ée╠ü┬╝\\.pdf$")) return(FALSE)
@@ -84,20 +84,7 @@ es_ticket_valido <- function(fichero) {
 # Filtrado en un solo paso
 tickets_mercadona <- keep(archivos_pdf, es_ticket_valido)
 tickets_mercadona <- tickets_mercadona[tickets_mercadona != "data/ticket1.pdf"]
-=======
- es_ticket_mercadona <- function(fichero) {
-   lineas <- tryCatch({
-     pdf_text(fichero) %>% str_split("\n") %>% .[[1]] %>% str_trim()
-   }, error = function(e) return(character(0)))
-   
-   if (length(lineas) == 0) return(FALSE)
-   
-   return(str_detect(lineas[1], regex("MERCADONA,\\s*S\\.A\\.", ignore_case = TRUE)))
- }
- 
- # Lista filtrada
- tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
->>>>>>> fe5e24135c5debf586338dcc6d11015086a76f07
+
 ```
 
 # Parte 1
@@ -144,12 +131,12 @@ funcion_df_parte1 <- function(lineas){
   # Crear data frame final
   df_info_ticket_parte1 <- tibble(
     Factura_simplificada = factura,
-    OP = as.numeric(op),
+    OP = op,
     Telefono = as.numeric(telefono),
     Fecha = as.Date(fecha, format = "%d/%m/%Y"),
     Hora = hora,
     Calle = Calle,
-    C.Postal = as.numeric(C.Postal),
+    C.Postal = C.Postal,
     Municipio = Municipio)
 
  return(df_info_ticket_parte1)
@@ -315,8 +302,24 @@ funcion_df_parte3 <- function(lineas){
   # Parking
   parking <- if (any(str_detect(lineas_final, regex("PARKING", ignore_case = TRUE)))) "SI" else "NO"
   
+  #Parking Entrada
+  PElineas <- lineas[grepl("ENTRADA \\d{2}:\\d{2}", lineas)]
+  PElineas <- str_extract(PElineas, "ENTRADA \\d{2}:\\d{2}")
+  PElineas <- ifelse(is.na(PElineas), "00:00", sub("ENTRADA", "", PElineas))
+  parkingE <- str_trim(PElineas)
+  parkingE <- hms(paste0(parkingE, ":00"))
+  
+  
+  #Parking Salida
+  PSlineas <- lineas[grepl("SALIDA \\d{2}:\\d{2}", lineas)]
+  PSlineas <- str_extract(PSlineas, "SALIDA \\d{2}:\\d{2}")
+  PSlineas <- ifelse(is.na(PSlineas), "00:00", sub("SALIDA", "", PSlineas))
+  parkingS <- str_trim(PSlineas)
+  parkingS <- hms(paste0(parkingS, ":00"))
+  
+  
   # Últimos 4 dígitos de tarjeta
-  tarjeta_linea <- lineas_final[grepl("TARJ\\. BANCARIA", lineas_final)]
+  tarjeta_linea <- lineas_final[grepl("TARJ\\.?\\sBANCARIA", lineas_final)]
   tarjeta_final <- if (length(tarjeta_linea) > 0) str_extract(tarjeta_linea, "\\d{4}") else NA
   
   # N.C., AUT, AID, ARC
@@ -342,7 +345,9 @@ funcion_df_parte3 <- function(lineas){
     Total = as.numeric(total),
     Pago_Tarjeta = as.numeric(tarjeta),
     Parking = parking,
-    Tarjeta_Ult4 = as.numeric(tarjeta_final),
+    ParkingEntrada = parkingE,
+    ParkingSalida = parkingS,
+    Tarjeta_Ult4 = tarjeta_final,
     Tipo_Tarjeta = tipo_tarjeta,
     NC = nc,
     AUT = aut,
@@ -365,12 +370,12 @@ funcion_df_parte3 <- function(lineas){
 
 df_info_ticket_parte1 <- data.frame(
     Factura_simplificada = character(),
-    OP = numeric(),
+    OP = character(),
     Telefono = numeric(),
     Fecha = Date(),
     Hora = character(),
     Calle = character(),
-    C.Postal = numeric(),
+    C.Postal = character(),
     Municipio = character())
 
 productos <- data.frame(
@@ -388,7 +393,9 @@ df_info_ticket <- data.frame(
     Total = numeric(),
     Pago_Tarjeta = numeric(),
     Parking = character(),
-    Tarjeta_Ult4 = numeric(),
+    ParkingEntrada = character(),
+    ParkingSalida = character(),
+    Tarjeta_Ult4 = character(),
     Tipo_Tarjeta = character(),
     NC = character(),
     AUT = character(),
