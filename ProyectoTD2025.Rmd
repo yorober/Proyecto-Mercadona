@@ -326,16 +326,18 @@ funcion_df_parte3 <- function(lineas){
   PElineas <- str_extract(PElineas, "ENTRADA \\d{2}:\\d{2}")
   PElineas <- ifelse(is.na(PElineas), "00:00", sub("ENTRADA", "", PElineas))
   parkingE <- str_trim(PElineas)
-  parkingE <- hms(paste0(parkingE, ":00"))
-  parkingE <- format(parkingE, "%H:%M:%S")
+  parkingE <- ifelse(length(PElineas) == 0, "00:00", parkingE)
+  parkingE <- as_hms(paste0(parkingE, ":00"))
+  
   
   #Parking Salida
   PSlineas <- lineas[grepl("SALIDA \\d{2}:\\d{2}", lineas)]
   PSlineas <- str_extract(PSlineas, "SALIDA \\d{2}:\\d{2}")
   PSlineas <- ifelse(is.na(PSlineas), NA, sub("SALIDA", "", PSlineas))
   parkingS <- str_trim(PSlineas)
-  parkingS <- hms(paste0(parkingS, ":00"))
-  parkingS <- format(parkingS, "%H:%M:%S")
+  parkingS <- ifelse(length(PSlineas) == 0, "00:00", parkingS)
+  parkingS <- as_hms(paste0(parkingS, ":00"))
+  
   
   
   # Últimos 4 dígitos de tarjeta
