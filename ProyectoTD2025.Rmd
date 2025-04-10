@@ -66,6 +66,7 @@ library(tidyverse)
  archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
  
  # Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
+<<<<<<< HEAD
 es_ticket_valido <- function(fichero) {
   # Excluye archivos con nombres corruptos
   if (str_detect(fichero, "O╠ée╠ü┬╝\\.pdf$")) return(FALSE)
@@ -83,6 +84,20 @@ es_ticket_valido <- function(fichero) {
 # Filtrado en un solo paso
 tickets_mercadona <- keep(archivos_pdf, es_ticket_valido)
 tickets_mercadona <- tickets_mercadona[tickets_mercadona != "data/ticket1.pdf"]
+=======
+ es_ticket_mercadona <- function(fichero) {
+   lineas <- tryCatch({
+     pdf_text(fichero) %>% str_split("\n") %>% .[[1]] %>% str_trim()
+   }, error = function(e) return(character(0)))
+   
+   if (length(lineas) == 0) return(FALSE)
+   
+   return(str_detect(lineas[1], regex("MERCADONA,\\s*S\\.A\\.", ignore_case = TRUE)))
+ }
+ 
+ # Lista filtrada
+ tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
+>>>>>>> fe5e24135c5debf586338dcc6d11015086a76f07
 ```
 
 # Parte 1
@@ -207,7 +222,7 @@ parse_lineas_ticket <- function(lineas) {
       
     }
     
-    else if (str_detect(linea_sin_trim, "^\\s{0}\\S")) {
+    else if (str_detect(linea_sin_trim, "^\\s{0,2}\\S")) {
       nombre_categoria <- str_trim(linea)
       nombre_producto <- ""
     }
@@ -258,8 +273,6 @@ parse_lineas_ticket <- function(lineas) {
 funcion_df_parte3 <- function(lineas){
   # Leer el PDF
   lineas <- str_trim(lineas)  # Limpiar espacios
-  
-  
   
   # Sección final
   inicio <- which(grepl("TOTAL \\(€\\)", lineas, ignore.case = TRUE))[1]
@@ -345,7 +358,6 @@ funcion_df_parte3 <- function(lineas){
 
   return(df_info_ticket)
 }
-
 ```
 
 
@@ -406,4 +418,16 @@ for (ticket_pdf in tickets_mercadona) {
 }
 info_tickets <- cbind(df_info_ticket_parte1, df_info_ticket)
 ```
+
+## Preguntas
+
+¿Hay alguna franja horaria en la que se registran más tickets?
+
+¿Cuales son los productos que más se registran en tickets los tickets de compras inferiores a 10€?¿Y en los superiores a 10€?
+
+¿Cual es el total de € en carne registrado en los tickets?¿Cual es el tipo de carne mas vendido?
+
+¿Cual es la bebida en la que mas € se han registrado?
+
+¿Que categoria es en la que mas dinero se registra (alimentacio, drogueria, perfumeria o bebidas)?
 
