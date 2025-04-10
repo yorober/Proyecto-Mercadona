@@ -66,22 +66,18 @@ library(tidyverse)
  archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
  
  # Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
-es_ticket_valido <- function(fichero) {
-  # Excluye archivos con nombres corruptos
-  if (str_detect(fichero, "O╠ée╠ü┬╝\\.pdf$")) return(FALSE)
-  
-  # Verifica si es ticket de Mercadona
-  lineas <- tryCatch({
-    pdf_text(fichero) %>% str_split("\n") %>% .[[1]] %>% str_trim()
-  }, error = function(e) return(character(0)))
-  
-  if (length(lineas) == 0) return(FALSE)
-  
-  str_detect(lineas[1], regex("MERCADONA,\\s*S\\.A\\.", ignore_case = TRUE))
-}
-
-# Filtrado en un solo paso
-tickets_mercadona <- keep(archivos_pdf, es_ticket_valido)
+ es_ticket_mercadona <- function(fichero) {
+   lineas <- tryCatch({
+     pdf_text(fichero) %>% str_split("\n") %>% .[[1]] %>% str_trim()
+   }, error = function(e) return(character(0)))
+   
+   if (length(lineas) == 0) return(FALSE)
+   
+   return(str_detect(lineas[1], regex("MERCADONA,\\s*S\\.A\\.", ignore_case = TRUE)))
+ }
+ 
+ # Lista filtrada
+ tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
 ```
 
 # Parte 1
@@ -206,7 +202,7 @@ parse_lineas_ticket <- function(lineas) {
       
     }
     
-    else if (str_detect(linea_sin_trim, "^\\s{0}\\S")) {
+    else if (str_detect(linea_sin_trim, "^\\s{0,2}\\S")) {
       nombre_categoria <- str_trim(linea)
       nombre_producto <- ""
     }
@@ -257,8 +253,6 @@ parse_lineas_ticket <- function(lineas) {
 funcion_df_parte3 <- function(lineas){
   # Leer el PDF
   lineas <- str_trim(lineas)  # Limpiar espacios
-  
-  
   
   # Sección final
   inicio <- which(grepl("TOTAL \\(€\\)", lineas, ignore.case = TRUE))[1]
@@ -344,7 +338,6 @@ funcion_df_parte3 <- function(lineas){
 
   return(df_info_ticket)
 }
-
 ```
 
 
