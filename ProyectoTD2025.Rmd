@@ -109,11 +109,16 @@ funcion_df_parte1 <- function(lineas){
   
   # C.Postal
   C.Postal_linea <- str_trim(lineas[3])
-  C.Postal <- if (length(telefono_linea) > 0) substr(C.Postal_linea, start = 1, stop = 5) else NA
+  C.Postal <- if (length(C.Postal_linea) > 0) substr(C.Postal_linea, start = 1, stop = 5) else NA
   
   # Municipio
   Municipio_linea <- str_trim(lineas[3])
-  Municipio <- if (length(telefono_linea) > 0) substring(Municipio_linea, first = 7) else NA
+  Municipio <- if (length(Municipio_linea) > 0) substring(Municipio_linea, first = 7) else NA
+  
+  # Teléfono
+  telefono_linea <- lineas[grepl("TEL[EÉ]FONO", lineas)]
+  telefono <- if (length(telefono_linea) > 0) str_extract(telefono_linea, "(?<=TEL[EÉ]FONO:\\s).*") else NA
+
     
   
   # Crear data frame final
@@ -129,6 +134,7 @@ funcion_df_parte1 <- function(lineas){
 
  return(df_info_ticket_parte1)
 }
+
 ```
   
 # Parte 2
