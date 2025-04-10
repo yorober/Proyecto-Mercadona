@@ -62,47 +62,28 @@ library(lubridate)
 library(tidyverse)
 
 # Obtener todos los archivos PDF en la carpeta data
+archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
 
- archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
- 
- # Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
-<<<<<<< HEAD
-es_ticket_valido <- function(fichero) {
-  # Excluye archivos con nombres corruptos
-  if (str_detect(fichero, "O╠ée╠ü┬╝\\.pdf$")) return(FALSE)
-  
-  # Verifica si es ticket de Mercadona
+# Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
+es_ticket_mercadona <- function(fichero) {
   lineas <- tryCatch({
     pdf_text(fichero) %>% str_split("\n") %>% .[[1]] %>% str_trim()
   }, error = function(e) return(character(0)))
   
   if (length(lineas) == 0) return(FALSE)
   
-  str_detect(lineas[1], regex("MERCADONA,\\s*S\\.A\\.", ignore_case = TRUE))
+  return(str_detect(lineas[1], regex("MERCADONA,\\s*S\\.A\\.", ignore_case = TRUE)))
 }
 
-# Filtrado en un solo paso
-tickets_mercadona <- keep(archivos_pdf, es_ticket_valido)
+# Lista filtrada
+tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
 tickets_mercadona <- tickets_mercadona[tickets_mercadona != "data/ticket1.pdf"]
-=======
- es_ticket_mercadona <- function(fichero) {
-   lineas <- tryCatch({
-     pdf_text(fichero) %>% str_split("\n") %>% .[[1]] %>% str_trim()
-   }, error = function(e) return(character(0)))
-   
-   if (length(lineas) == 0) return(FALSE)
-   
-   return(str_detect(lineas[1], regex("MERCADONA,\\s*S\\.A\\.", ignore_case = TRUE)))
- }
- 
- # Lista filtrada
- tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
->>>>>>> fe5e24135c5debf586338dcc6d11015086a76f07
 ```
 
 # Parte 1
   Esta parte le corresponde a Emma y Julen y va desde el comienzo del ticket hasta los productos (sin incluir estos últimos).
 ```{r}
+# Función que crea el data frame de la primera parte de los tickets.
 funcion_df_parte1 <- function(lineas){  
   # Fecha y hora
   fecha_hora <- str_extract(lineas, "\\d{2}/\\d{2}/\\d{4}\\s+\\d{2}:\\d{2}") %>% na.omit()
@@ -160,22 +141,27 @@ funcion_df_parte1 <- function(lineas){
 # Parte 2
   Esta parte le corresponde a Iván y Yordano y abarca los productos.
 ```{r}
+# Patrones de las líneas con productos que vayan por unidad, por unidad pero que la cantidad sea mayor a 1 y por peso, respectivamente.
 patron_unidad <- "^\\s*(\\d+)\\s+(.+?)\\s+(\\d+\\.\\d{2})\\s*$"
 patron_unidad_varias <- "^\\s*(\\d+)\\s+(.+?)\\s+(\\d+\\.\\d{2})\\s+(\\d+\\.\\d{2})\\s*$"
 patron_peso <- "^\\s*(\\d*\\.?\\d+)\\s*kg\\s+(\\d*\\.?\\d+)\\s*€/kg\\s+(\\d*\\.?\\d{2})\\s*$"  
 
+# Función que crea el data frame de los productos.
 parse_lineas_ticket <- function(lineas) {
   
+  # Escoge las líneas correspondientes a los productos del ticket.
   inicio <- which(grepl("Descripción", lineas, ignore.case = TRUE))
   fin <- which(grepl("TOTAL \\(€\\)", lineas, ignore.case = TRUE))
   lineas_productos <- lineas[(inicio + 1):(fin - 1)]
   lineas_productos <- str_replace_all(lineas_productos, ",", ".")
   
+  # Para los productos por peso (se verá más tarde).
   nombre_categoria <- ""
   nombre_producto <- ""
   
+  # Data frame donde se irán guardando los productos por filas.
   prod <- tibble(
-    id_ticket = character(),
+    Factura_simplificada = character(),
     Producto = character(),
     Cantidad = integer(),
     Peso_kg = numeric(),
@@ -184,18 +170,23 @@ parse_lineas_ticket <- function(lineas) {
     Importe = numeric()
     )
   
+  # ID del ticket.
   factura_linea <- lineas[grepl("FACTURA SIMPLIFICADA", lineas)]
   factura <- if (length(factura_linea) > 0) str_extract(factura_linea, "\\d{4}-\\d{3}-\\d+") else NA
   
-
+  # Bucle para leer línea a línea el conjunto de líneas de los productos.
   for (linea in lineas_productos) {
     linea_sin_trim <- linea
     linea <- str_trim(linea)
     
-    if (str_detect(linea, patron_unidad_varias)) {
+    # Saltarse la línea que contenga el parking, ya que está en productos.
+    if (str_detect(linea_sin_trim, regex("PARKING", ignore_case = TRUE))) next
+    
+    # Se inserta la información de los productos por unidad pero que la cantidad sea mayor a 1.
+    else if (str_detect(linea, patron_unidad_varias)) {
       datos <- str_match(linea, patron_unidad_varias)
       prodx <- data.frame(
-        id_ticket = factura,
+        Factura_simplificada = factura,
         Producto = datos[3],
         Cantidad = as.integer(datos[2]),
         Peso_kg = NA,
@@ -206,11 +197,12 @@ parse_lineas_ticket <- function(lineas) {
       prod <- rbind(prod, prodx)
       
     }
-
+    
+    # Se inserta la información de los productos por unidad.
     else if (str_detect(linea, patron_unidad)) {
       datos <- str_match(linea, patron_unidad)
       prodx <- data.frame(
-        id_ticket = factura,
+        Factura_simplificada = factura,
         Producto = str_trim(datos[3]),
         Cantidad = as.integer(datos[2]),
         Peso_kg = NA,
@@ -222,23 +214,35 @@ parse_lineas_ticket <- function(lineas) {
       
     }
     
-    else if (str_detect(linea_sin_trim, "^\\s{0,2}\\S")) {
-      nombre_categoria <- str_trim(linea)
+    # Detectar las líneas que contengan el nombre de los productos por peso correspondientes a la fruta y verdura.
+    else if (
+      str_detect(linea_sin_trim, "^\\s{0,2}(\\d+)\\s+(.+)$") &&
+      !str_detect(linea_sin_trim, "\\d+\\.\\d{2}$")
+    ) {
+      datos <- str_match(linea_sin_trim, "^\\s{0,2}(\\d+)\\s+(.+)$")
+      nombre_categoria <- str_trim(datos[3])
       nombre_producto <- ""
+      cantidad <- as.integer(datos[2])
     }
     
+    # Detectar las líneas que contengan el nombre de la categoría de los productos por peso.
     else if (str_detect(linea_sin_trim, "^\\s{4}\\S")) {
       nombre_categoria <- str_trim(linea)
       nombre_producto <- ""
+      cantidad <- NA
     }
     
+    # Detectar las líneas que contengan el nombre de los productos por peso.
     else if (str_detect(linea_sin_trim, "^\\s{6}\\S")) {
       nombre_producto <- str_trim(linea)
+      cantidad <- NA
     }
     
+    # Se inserta la información de los productos por peso.
     else if (str_detect(linea, patron_peso)) {
       datos <- str_match(linea, patron_peso)
       
+      # Se crea el nombre obtenido según la información que se haya abotenido en las anteriores condiciones.
       nombre_completo <- if (nombre_producto != "") {
         if (nombre_categoria != "") {
           paste(nombre_categoria, nombre_producto, sep = " - ")
@@ -250,9 +254,9 @@ parse_lineas_ticket <- function(lineas) {
       } else {NA}
       
       prodx <- data.frame(
-        id_ticket = factura,
+        Factura_simplificada = factura,
         Producto = nombre_completo,
-        Cantidad = NA,
+        Cantidad = cantidad,
         Peso_kg = as.numeric(datos[2]),
         PrecioUnitario = NA,
         PrecioKg = as.numeric(datos[3]),
@@ -313,7 +317,7 @@ funcion_df_parte3 <- function(lineas){
   IVA_Cuotas <- paste(iva_df$Cuota, collapse = ";")
   
   # Parking
-  parking <- if (any(str_detect(lineas_final, regex("PARKING", ignore_case = TRUE)))) "SI" else "NO"
+  parking <- if (any(str_detect(lineas, regex("PARKING", ignore_case = TRUE)))) "SI" else "NO"
   
   # Últimos 4 dígitos de tarjeta
   tarjeta_linea <- lineas_final[grepl("TARJ\\. BANCARIA", lineas_final)]
@@ -374,7 +378,7 @@ df_info_ticket_parte1 <- data.frame(
     Municipio = character())
 
 productos <- data.frame(
-    id_ticket = character(),
+    Factura_simplificada = character(),
     Producto = character(),
     Cantidad = integer(),
     Peso_kg = numeric(),
@@ -417,17 +421,8 @@ for (ticket_pdf in tickets_mercadona) {
   df_info_ticket <- rbind(df_info_ticket, parte3)
 }
 info_tickets <- cbind(df_info_ticket_parte1, df_info_ticket)
+
+head(info_tickets)
+head(productos)
 ```
-
-## Preguntas
-
-¿Hay alguna franja horaria en la que se registran más tickets?
-
-¿Cuales son los productos que más se registran en tickets los tickets de compras inferiores a 10€?¿Y en los superiores a 10€?
-
-¿Cual es el total de € en carne registrado en los tickets?¿Cual es el tipo de carne mas vendido?
-
-¿Cual es la bebida en la que mas € se han registrado?
-
-¿Que categoria es en la que mas dinero se registra (alimentacio, drogueria, perfumeria o bebidas)?
 
