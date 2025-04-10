@@ -59,25 +59,10 @@ library(stringr)
 library(tibble)
 library(hms)
 library(lubridate)
+library(tidyverse)
 
 # Obtener todos los archivos PDF en la carpeta data
-<<<<<<< HEAD
-archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
 
-# Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
-es_ticket_mercadona <- function(fichero) {
-  lineas <- tryCatch({
-    pdf_text(fichero) %>% str_split("\n") %>% .[[1]] %>% str_trim()
-  }, error = function(e) return(character(0)))
-  
-  if (length(lineas) == 0) return(FALSE)
-  
-  return(str_detect(lineas[1], regex("MERCADONA,\\s*S\\.A\\.", ignore_case = TRUE)))
-}
-
-# Lista filtrada
-tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
-=======
  archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
  
  # Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
@@ -93,7 +78,6 @@ tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
  
  # Lista filtrada
  tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
->>>>>>> 4feb057355cd4b8db34ffec0b525e5609fe2a56e
 ```
 
 # Parte 1
@@ -150,16 +134,19 @@ funcion_df_parte1 <- function(lineas){
 # Parte 2
   Esta parte le corresponde a Iván y Yordano y abarca los productos.
 ```{r}
-  
+patron_unidad <- "^\\s*(\\d+)\\s+(.+?)\\s+(\\d+\\.\\d{2})\\s*$"
+patron_unidad_varias <- "^\\s*(\\d+)\\s+(.+?)\\s+(\\d+\\.\\d{2})\\s+(\\d+\\.\\d{2})\\s*$"
+patron_peso <- "^\\s*(\\d*\\.?\\d+)\\s*kg\\s+(\\d*\\.?\\d+)\\s*€/kg\\s+(\\d*\\.?\\d{2})\\s*$"  
+
 parse_lineas_ticket <- function(lineas) {
-  patron_unidad <- "^\\s*(\\d+)\\s+(.+?)\\s+(\\d+\\.\\d{2})\\s*$"
-  patron_unidad_varias <- "^\\s*(\\d+)\\s+(.+?)\\s+(\\d+\\.\\d{2})\\s+(\\d+\\.\\d{2})\\s*$"
-  patron_peso <- "^\\s*(\\d*\\.?\\d+)\\s*kg\\s+(\\d*\\.?\\d+)\\s*€/kg\\s+(\\d*\\.?\\d{2})\\s*$"
   
   inicio <- which(grepl("Descripción", lineas, ignore.case = TRUE))
-  fin <- which(grepl("Precio total|TOTAL", lineas, ignore.case = TRUE))
+  fin <- which(grepl("TOTAL \\(€\\)", lineas, ignore.case = TRUE))
   lineas_productos <- lineas[(inicio + 1):(fin - 1)]
   lineas_productos <- str_replace_all(lineas_productos, ",", ".")
+  
+  nombre_categoria <- ""
+  nombre_producto <- ""
   
   prod <- tibble(
     id_ticket = character(),
@@ -174,8 +161,6 @@ parse_lineas_ticket <- function(lineas) {
   factura_linea <- lineas[grepl("FACTURA SIMPLIFICADA", lineas)]
   factura <- if (length(factura_linea) > 0) str_extract(factura_linea, "\\d{4}-\\d{3}-\\d+") else NA
   
-  nombre_categoria <- ""
-  nombre_producto <- ""
 
   for (linea in lineas_productos) {
     linea_sin_trim <- linea
@@ -183,7 +168,7 @@ parse_lineas_ticket <- function(lineas) {
     
     if (str_detect(linea, patron_unidad_varias)) {
       datos <- str_match(linea, patron_unidad_varias)
-      prod <- bind_rows(prod, tibble(
+      prodx <- data.frame(
         id_ticket = factura,
         Producto = datos[3],
         Cantidad = as.integer(datos[2]),
@@ -191,13 +176,14 @@ parse_lineas_ticket <- function(lineas) {
         PrecioUnitario = as.numeric(datos[4]),
         PrecioKg = NA,
         Importe = as.numeric(datos[5])
-      ))
+      )
+      prod <- rbind(prod, prodx)
       
     }
 
     else if (str_detect(linea, patron_unidad)) {
       datos <- str_match(linea, patron_unidad)
-      prod <- bind_rows(prod, tibble(
+      prodx <- data.frame(
         id_ticket = factura,
         Producto = str_trim(datos[3]),
         Cantidad = as.integer(datos[2]),
@@ -205,22 +191,23 @@ parse_lineas_ticket <- function(lineas) {
         PrecioUnitario = as.numeric(datos[4])/as.integer(datos[2]),
         PrecioKg = NA,
         Importe = as.numeric(datos[4])
-      ))
+      )
+      prod <- rbind(prod, prodx)
       
     }
     
-    else if (str_detect(linea_sin_trim, "^\\s{2}\\S")) {
-      nombre_categoria <- str_trim(linea_sin_trim)
+    else if (str_detect(linea_sin_trim, "^\\s{0}\\S")) {
+      nombre_categoria <- str_trim(linea)
       nombre_producto <- ""
     }
     
     else if (str_detect(linea_sin_trim, "^\\s{4}\\S")) {
-      nombre_categoria <- str_trim(linea_sin_trim)
+      nombre_categoria <- str_trim(linea)
       nombre_producto <- ""
     }
     
     else if (str_detect(linea_sin_trim, "^\\s{6}\\S")) {
-      nombre_producto <- str_trim(linea_sin_trim)
+      nombre_producto <- str_trim(linea)
     }
     
     else if (str_detect(linea, patron_peso)) {
@@ -234,9 +221,9 @@ parse_lineas_ticket <- function(lineas) {
         }
       } else if (nombre_categoria != "") {
         nombre_categoria
-      }
+      } else {NA}
       
-      prod <- bind_rows(prod, tibble(
+      prodx <- data.frame(
         id_ticket = factura,
         Producto = nombre_completo,
         Cantidad = NA,
@@ -244,7 +231,8 @@ parse_lineas_ticket <- function(lineas) {
         PrecioUnitario = NA,
         PrecioKg = as.numeric(datos[3]),
         Importe = as.numeric(datos[4])
-      ))
+      )
+      prod <- rbind(prod, prodx)
     }
     
   }
@@ -346,20 +334,7 @@ funcion_df_parte3 <- function(lineas){
 
   return(df_info_ticket)
 }
-<<<<<<< HEAD
-fichero <- tickets_mercadona[1]
-data <- pdf_text(fichero)
-lineas <- str_split(data, "\n")[[1]]
-prueba <- parse_lineas_ticket(lineas)
 
-=======
-
-fichero <- tickets_mercadona[2]
-  data <- pdf_text(fichero)
-  lineas <- str_split(data,"\n")[[1]] 
-  
-prueba <- funcion_df_parte3(lineas)
->>>>>>> 4feb057355cd4b8db34ffec0b525e5609fe2a56e
 ```
 
 
@@ -392,7 +367,7 @@ df_info_ticket_parte1 <- data.frame(
     C.Postal = numeric(),
     Municipio = character())
 
-productos <- tibble(
+productos <- data.frame(
     id_ticket = character(),
     Producto = character(),
     Cantidad = integer(),
@@ -435,5 +410,6 @@ for (ticket_pdf in tickets_mercadona) {
   productos <- rbind(productos, productos_varios)
   df_info_ticket <- rbind(df_info_ticket, parte3)
 }
+info_tickets <- cbind(df_info_ticket_parte1, df_info_ticket)
 ```
 
