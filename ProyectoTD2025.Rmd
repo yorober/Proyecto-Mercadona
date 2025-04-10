@@ -62,9 +62,6 @@ library(lubridate)
 library(tidyverse)
 
 # Obtener todos los archivos PDF en la carpeta data
-archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
-
-<<<<<<< HEAD
  archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
  
  # Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
@@ -74,10 +71,7 @@ es_ticket_valido <- function(fichero) {
   if (str_detect(fichero, "O╠ée╠ü┬╝\\.pdf$")) return(FALSE)
   
   # Verifica si es ticket de Mercadona
-=======
-# Filtrar solo los archivos cuya primera línea sea de un ticket de Mercadona
-es_ticket_mercadona <- function(fichero) {
->>>>>>> 91b6b8307bfddcbe5e9889165bf1339fd4fce64f
+
   lineas <- tryCatch({
     pdf_text(fichero) %>% str_split("\n") %>% .[[1]] %>% str_trim()
   }, error = function(e) return(character(0)))
@@ -90,10 +84,7 @@ es_ticket_mercadona <- function(fichero) {
 # Lista filtrada
 tickets_mercadona <- keep(archivos_pdf, es_ticket_mercadona)
 tickets_mercadona <- tickets_mercadona[tickets_mercadona != "data/ticket1.pdf"]
-<<<<<<< HEAD
 
-=======
->>>>>>> 91b6b8307bfddcbe5e9889165bf1339fd4fce64f
 ```
 
 # Parte 1
@@ -341,14 +332,15 @@ funcion_df_parte3 <- function(lineas){
   PElineas <- ifelse(is.na(PElineas), "00:00", sub("ENTRADA", "", PElineas))
   parkingE <- str_trim(PElineas)
   parkingE <- hms(paste0(parkingE, ":00"))
-  
+  parkingE <- format(parkingE, "%H:%M:%S")
   
   #Parking Salida
   PSlineas <- lineas[grepl("SALIDA \\d{2}:\\d{2}", lineas)]
   PSlineas <- str_extract(PSlineas, "SALIDA \\d{2}:\\d{2}")
-  PSlineas <- ifelse(is.na(PSlineas), "00:00", sub("SALIDA", "", PSlineas))
+  PSlineas <- ifelse(is.na(PSlineas), NA, sub("SALIDA", "", PSlineas))
   parkingS <- str_trim(PSlineas)
   parkingS <- hms(paste0(parkingS, ":00"))
+  parkingS <- format(parkingS, "%H:%M:%S")
   
   
   # Últimos 4 dígitos de tarjeta
