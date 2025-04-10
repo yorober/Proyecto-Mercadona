@@ -61,6 +61,9 @@ library(hms)
 library(lubridate)
 library(tidyverse)
 
+# Obtener todos los archivos PDF en la carpeta data
+archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
+
 # Función combinada
 es_ticket_valido <- function(fichero) {
   # Excluye archivos con nombres corruptos
