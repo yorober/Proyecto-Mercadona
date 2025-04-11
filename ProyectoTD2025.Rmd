@@ -5,7 +5,14 @@ author: "Yordano Rodríguez, Iván Jiménez, Sergio Mut, Emma Espí, Julen Navar
 date: "2025-03-30"
 output:
   bookdown::html_document2:
+<<<<<<< HEAD
+    toc: true
+  html_document:
+    echo: yes
+    number_sections: no
+=======
     number_sections: true
+>>>>>>> 0ff13b34724e2eeba2e3d08c4725ae3dfaed30c8
     theme: lumen
     toc: true
     toc_depth: 3
@@ -36,7 +43,7 @@ knit_hooks$set(inline=function(x) {
 # knit_hooks$set(plot=knitr:::hook_plot_html)
 ```
 
-# 1. Introduccion
+# Introduccion
 
  En la era actual de la transformación digital, los datos de transacciones comerciales representan una fuente invaluable de información para comprender el comportamiento del consumidor. Este proyecto se centra en el análisis exploratorio de tickets de compra de Mercadona, una de las cadenas de supermercados más importantes de España.
 
@@ -48,7 +55,7 @@ knit_hooks$set(inline=function(x) {
 
   **Optimizar estrategias comerciales**
 
-## 1.1 Configuración inicial: Librerías y carga de datos
+## Configuración inicial: Librerías y carga de datos
 
  Para el procesamiento y análisis de los tickets de Mercadona, hemos implementado un módulo de código de carga de librerías en R utilizando el paquete pacman, que permite instalar y cargar paquetes de manera eficiente en una sola operación. Este enfoque garantiza la reproducibilidad del análisis y simplifica la gestión de codigo.
 
@@ -76,13 +83,13 @@ knit_hooks$set(inline=function(x) {
 
   Este proceso de transformacion permite un análisis confiable en fases posteriores del proyecto. Los scripts completos de transformación están disponibles en el repositorio GitHub del proyecto.
 
-## 1.2 Descripcion de variables
- En este apartado se presenta el análisis  detallado de las variables clave del dataset, organizado según su tipo (numéricas, categóricas, etc). Con el objetivo de visualizar mucho mas facil y entender a fondo cada una de estas variables. Como se muestra en la Tabla <a href="#mi-tabla">1</a>, estas son las variables utilizadas
+## Descripcion de variables
+ En este apartado se presenta el análisis  detallado de las variables clave del dataset, organizado según su tipo (numéricas, categóricas, etc). Con el objetivo de visualizar mucho mas facil y entender a fondo cada una de estas variables. Como se muestra en la Tabla \@ref(tab:mi-tabla), estas son las variables utilizadas
   
-  
-# Carga de librerías
   
 ```{r}
+#Carga de librerias
+
 library(fs)       # para listar archivos
 library(purrr)    # para aplicar funciones a listas
 library(pdftools)
@@ -96,9 +103,9 @@ library(kableExtra)
 ```
 
 
-# Tabla 1
 
 ```{r mi-tabla, echo=FALSE}
+
 # Datos del data frame (igual que antes)
 df_variables <- data.frame(
   Variable = c("Factura_simplificada", "OP", "Telefono", "Fecha", "Hora", "Calle", 
