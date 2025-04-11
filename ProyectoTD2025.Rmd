@@ -15,6 +15,27 @@ output:
     number_sections: no
 ---
 
+```{r setup, cache=F, echo=F, message=F, warning=F, tidy=F}
+# CONFIGURACIÓN GENERAL
+library(knitr)
+options(width=100)
+# Opciones generales chunks
+opts_chunk$set(echo=TRUE, message=F, error=F, warning=F,
+               comment=NA, fig.align='center', dpi=100, tidy=F,
+               cache.path='./cache/', fig.path='./figure/',
+               fig.width=6, fig.height=2)
+
+# options(xtable.type='html')
+knit_hooks$set(inline=function(x) {
+  if(is.numeric(x)) {
+    round(x, getOption('digits'))
+  } else {
+    paste(as.character(x), collapse=', ')
+  }
+})
+# knit_hooks$set(plot=knitr:::hook_plot_html)
+```
+
 # 1. Introduccion
 
  En la era actual de la transformación digital, los datos de transacciones comerciales representan una fuente invaluable de información para comprender el comportamiento del consumidor. Este proyecto se centra en el análisis exploratorio de tickets de compra de Mercadona, una de las cadenas de supermercados más importantes de España.
@@ -56,32 +77,9 @@ output:
   Este proceso de transformacion permite un análisis confiable en fases posteriores del proyecto. Los scripts completos de transformación están disponibles en el repositorio GitHub del proyecto.
 
 ## 1.2 Descripcion de variables
- En este apartado se presenta el análisis  detallado de las variables clave del dataset, organizado según su tipo (numéricas, categóricas, etc). Con el objetivo de visualizar mucho mas facil y entender a fondo cada una de estas variables 
+ En este apartado se presenta el análisis  detallado de las variables clave del dataset, organizado según su tipo (numéricas, categóricas, etc). Con el objetivo de visualizar mucho mas facil y entender a fondo cada una de estas variables. Como se muestra en la Tabla <a href="#mi-tabla">1</a>, estas son las variables utilizadas
   
-
-
-```{r setup, cache=F, echo=F, message=F, warning=F, tidy=F}
-# CONFIGURACIÓN GENERAL
-library(knitr)
-options(width=100)
-# Opciones generales chunks
-opts_chunk$set(echo=TRUE, message=F, error=F, warning=F,
-               comment=NA, fig.align='center', dpi=100, tidy=F,
-               cache.path='./cache/', fig.path='./figure/',
-               fig.width=6, fig.height=2)
-
-# options(xtable.type='html')
-knit_hooks$set(inline=function(x) {
-  if(is.numeric(x)) {
-    round(x, getOption('digits'))
-  } else {
-    paste(as.character(x), collapse=', ')
-  }
-})
-# knit_hooks$set(plot=knitr:::hook_plot_html)
-```
-
-
+  
 # Carga de librerías
   
 ```{r}
@@ -93,23 +91,60 @@ library(tibble)
 library(hms)
 library(lubridate)
 library(tidyverse)
+library(rticles)
+library(kableExtra)
 ```
 
 
-# Tabla numerada
+# Tabla 1
 
-```{r tab-mitabla, echo=FALSE}
-# Crear la tabla a mano como un data frame
-mi_tabla <- data.frame(
-  Variables = c("Factura_simplificada", "OP", "Telefono", "Fecha", "Hora", "Calle", "C.Postal", "Municipio", "Total", "Pago_Tarjeta", "Parking", "ParkingEntrada", "ParkingSalida", "TarjetaUlt4", "Tipo_Tarjeta", "NC", "AUT", "AID", "ARC", "Base_Imponible_Total", "Cuota_Total", "Importe_Final", "IVA_Tipos", "IVA_Bases", "IVA_Cuotas", "Producto", "Cantidad", "Peso_kg", "PesoUnitario", "PrecioKg", "Importe"),
-  Tipos = c("Character", "Character", "Numeric", "Date", "hms", "Character", "Character", "Character", "Numeric", "Numeric", "Character (binario)", "hms", "hms", "Character", "Character", "Character", "Character", "Character", "Character", "Numeric", "Numeric", "Numeric", "Character", "Character", "Character", "Character", "Numeric", "Numeric", "Numeric", "Numeric", "Numeric"),
-  Descripción = c("Código del ticket", "OP", "Teléfono del supermercado", "Fecha de compra", "Hora de compra", "Calle donde se encuentra el supermercado", "Código postal del municipio donde se encuentra el supermercado", "Municipio donde se encuentra el supermercado", "Total de la compra", "Pago realizado con tarjeta", "Si se ha utilizado o no el parking", "Hora de entrada al parking", "Hora de salida del parking", "Ultimos 4 dígitos de la tarjeta bancaria", "Tipo de tarjeta bancaria utilizada", "NC", "AUT", "AID", "ARC", "Precio sin IVA", "IVA", "Precio con IVA", "Tipos de IVA aplicados", "Bases sobre las que se imponen los distintos tipos de IVA", "IVA aplicado a sus bases imponibles correspondientes", "Nombre del producto", "Cantidad del producto comprada", "Peso en kg de los productos por peso", "Peso por unidad de los productos", "Precio de los productos por peso", "Precio del producto")
+```{r mi-tabla, echo=FALSE}
+# Datos del data frame (igual que antes)
+df_variables <- data.frame(
+  Variable = c("Factura_simplificada", "OP", "Telefono", "Fecha", "Hora", "Calle", 
+               "C.Postal", "Municipio", "Total", "Pago_Tarjeta", "Parking", 
+               "ParkingEntrada", "ParkingSalida", "TarjetaUlt4", "Tipo_Tarjeta", 
+               "NC", "AUT", "AID", "ARC", "Base_Imponible_Total", "Cuota_Total", 
+               "Importe_Final", "IVA_Tipos", "IVA_Bases", "IVA_Cuotas", "Producto", 
+               "Cantidad", "Peso_kg", "PesoUnitario", "PrecioKg", "Importe"),
+  
+  Tipo = c("Character", "Character", "Numeric", "Date", "hms", "Character", 
+           "Character", "Character", "Numeric", "Numeric", "Character (binario)", 
+           "hms", "hms", "Character", "Character", "Character", "Character", 
+           "Character", "Character", "Numeric", "Numeric", "Numeric", "Character", 
+           "Character", "Character", "Character", "Numeric", "Numeric", "Numeric", 
+           "Numeric", "Numeric"),
+  
+  Descripción = c("Código del ticket", "OP", "Teléfono del supermercado", 
+                  "Fecha de compra", "Hora de compra", "Calle donde se encuentra el supermercado", 
+                  "Código postal del municipio donde se encuentra el supermercado", 
+                  "Municipio donde se encuentra el supermercado", "Total de la compra", 
+                  "Pago realizado con tarjeta", "Si se ha utilizado o no el parking", 
+                  "Hora de entrada al parking", "Hora de salida del parking", 
+                  "Ultimos 4 dígitos de la tarjeta bancaria", "Tipo de tarjeta bancaria utilizada", 
+                  "NC", "AUT", "AID", "ARC", "Precio sin IVA", "IVA", 
+                  "Precio con IVA", "Tipos de IVA aplicados", 
+                  "Bases sobre las que se imponen los distintos tipos de IVA", 
+                  "IVA aplicado a sus bases imponibles correspondientes", 
+                  "Nombre del producto", "Cantidad del producto comprada", 
+                  "Peso en kg de los productos por peso", "Peso por unidad de los productos", 
+                  "Precio de los productos por peso", "Precio del producto")
 )
 
-# Mostrarla con caption
-knitr::kable(mi_tabla, caption = "Variables de los data frames")
+# Generación de la tabla con referencia
+tabla <- df_variables %>%
+  kbl(
+    caption = "Diccionario de variables",  # No uses \\label aquí para HTML
+    format = "html",
+    col.names = c("Variable", "Tipo", "Descripción")
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    full_width = FALSE
+  )
+
+tabla  # Esto muestra la tabla
 ```
-Como se muestra en la Tabla \@ref(tab-mitabla), estas son las variables utilizadas, sus tipos (dominios) y a qué hacen referencia.
 
 
 # Función de filtrado
