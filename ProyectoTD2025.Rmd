@@ -1,20 +1,25 @@
 ---
 title: "ProyectoTD2025"
 subtitle: "Tratamiento de Datos, MiniProyecto de Mercadona"
-author: "Yordano Rodriguez, Ivan Jimenez, Sergio Mut, Emma Espí, Julen Navarro, Nicolas Aroca"
+author: "Yordano Rodríguez, Iván Jiménez, Sergio Mut, Emma Espí, Julen Navarro, Nicolás Aroca"
 date: "2025-03-30"
 output:
   bookdown::html_document2:
+<<<<<<< HEAD
     toc: true
   html_document:
     echo: yes
     number_sections: no
+=======
+    number_sections: true
+>>>>>>> 0ff13b34724e2eeba2e3d08c4725ae3dfaed30c8
     theme: lumen
-    toc: yes
-  pdf_document:
-    toc: yes
+    toc: true
     toc_depth: 3
-    number_sections: no
+  bookdown::pdf_document2:
+    number_sections: true
+    toc: true
+    toc_depth: 3
 ---
 
 ```{r setup, cache=F, echo=F, message=F, warning=F, tidy=F}
@@ -99,6 +104,18 @@ library(kableExtra)
 
 
 
+<<<<<<< HEAD
+```{r tab-mitabla, echo=FALSE}
+mi_tabla <- data.frame(
+  Variables = c("Factura_simplificada", "OP", "Telefono", "Fecha", "Hora", "Calle", "C.Postal", "Municipio", "Total", "Pago_Tarjeta", "Parking", "ParkingEntrada", "ParkingSalida", "TarjetaUlt4", "Tipo_Tarjeta", "NC", "AUT", "AID", "ARC", "Base_Imponible_Total", "Cuota_Total", "Importe_Final", "IVA_Tipos", "IVA_Bases", "IVA_Cuotas", "Producto", "Cantidad", "Peso_kg", "PesoUnitario", "PrecioKg", "Importe"),
+  Tipos = c("Character", "Character", "Numeric", "Date", "hms", "Character", "Character", "Character", "Numeric", "Numeric", "Character (binario)", "hms", "hms", "Character", "Character", "Character", "Character", "Character", "Character", "Numeric", "Numeric", "Numeric", "Character", "Character", "Character", "Character", "Numeric", "Numeric", "Numeric", "Numeric", "Numeric"),
+  Descripción = c("Código del ticket", "OP", "Teléfono del supermercado", "Fecha de compra", "Hora de compra", "Calle donde se encuentra el supermercado", "Código postal del municipio donde se encuentra el supermercado", "Municipio donde se encuentra el supermercado", "Total de la compra", "Pago realizado con tarjeta", "Si se ha utilizado o no el parking", "Hora de entrada al parking", "Hora de salida del parking", "Ultimos 4 dígitos de la tarjeta bancaria", "Tipo de tarjeta bancaria utilizada", "NC", "AUT", "AID", "ARC", "Precio sin IVA", "IVA", "Precio con IVA", "Tipos de IVA aplicados", "Bases sobre las que se imponen los distintos tipos de IVA", "IVA aplicado a sus bases imponibles correspondientes", "Nombre del producto", "Cantidad del producto comprada", "Peso en kg de los productos por peso", "Peso por unidad de los productos", "Precio de los productos por peso", "Precio del producto")
+)
+
+knitr::kable(mi_tabla, caption = "Variables de los data frames")
+```
+Como se muestra en la **Tabla \@ref(tab-mitabla)**, estas son las variables utilizadas, sus tipos (dominios) y a qué hacen referencia.
+=======
 ```{r mi-tabla, echo=FALSE}
 
 # Datos del data frame (igual que antes)
@@ -147,6 +164,7 @@ tabla <- df_variables %>%
 
 tabla  # Esto muestra la tabla
 ```
+>>>>>>> b3deda084973ec92a0c582744b28c05f943cfdad
 
 
 # Función de filtrado
@@ -561,3 +579,15 @@ head(productos)
 
 
 # Preguntas
+
+- ¿Cuáles son los 5 productos, de los vendidos por unidades, con más ventas? ¿Cuántas unidades de cada uno se han vendido?
+
+- Si consideramos la categoría de FRUTAS Y VERDURAS. ¿Cuáles son los 5 productos más vendidos? ¿Cuántos kilos se han vendido de cada uno de estos productos?
+
+- Si consideramos la categoría de PESCADO. ¿Cuáles son los 5 productos más vendidos? ¿Cuántos kilos se han vendido de cada uno de estos productos?
+
+- Muestra mediante un gráfico de líneas cómo ha variado el precio por kilo de las bananas y los plátanos en los tickets disponibles, a lo largo del tiempo.
+
+- ¿Cuál es la procedencia de los tickets? ¿Qué ciudad/pueblo tiene un mayor número de tickets?
+
+- Muestra mediante un diagrama el número de tickets recogidos cada día de la semana. Si tuvieses que cerrar un día entre semana,  ¿qué día lo harías?
