@@ -36,7 +36,8 @@ knit_hooks$set(inline=function(x) {
 # knit_hooks$set(plot=knitr:::hook_plot_html)
 ```
 
-## Funcion de filtrado:
+
+## Carga de librerías
   
 ```{r}
 library(fs)       # para listar archivos
@@ -47,7 +48,12 @@ library(tibble)
 library(hms)
 library(lubridate)
 library(tidyverse)
+```
 
+
+# Función de filtrado
+
+```{r}
 # Obtener todos los archivos PDF en la carpeta data
 archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
 
@@ -72,7 +78,8 @@ tickets_mercadona <- tickets_mercadona[tickets_mercadona != "data/ticket1.pdf"]
 
 ```
 
-# Funcion de extraccion de informacion (parte 1)
+
+# Función de extracción de información (parte 1)
 
 ```{r}
 # Función que crea el data frame de la primera parte de los tickets.
@@ -130,7 +137,8 @@ funcion_df_parte1 <- function(lineas){
 
 ```
   
-# Funcion de extraccion de informacion (parte 2)
+  
+# Función de extracción de información (parte 2)
 
 ```{r}
 # Patrones de las líneas con productos que vayan por unidad, por unidad pero que la cantidad sea mayor a 1 y por peso, respectivamente.
@@ -264,7 +272,8 @@ parse_lineas_ticket <- function(lineas) {
 }
 ```
 
-# Funcion de extraccion de informacion (parte 3)
+
+# Función de extracción de información (parte 3)
 
 ```{r}
 funcion_df_parte3 <- function(lineas){
@@ -378,6 +387,7 @@ funcion_df_parte3 <- function(lineas){
 }
 ```
 
+
 # Bucle de generación del DataFrame
 
 ```{r}
@@ -450,3 +460,6 @@ info_tickets <- cbind(df_info_ticket_parte1, df_info_ticket)
 head(info_tickets)
 head(productos)
 ```
+
+
+# Preguntas
