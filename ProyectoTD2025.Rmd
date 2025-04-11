@@ -5,10 +5,13 @@ author: "Yordano Rodríguez, Iván Jiménez, Sergio Mut, Emma Espí, Julen Navar
 date: "2025-03-30"
 output:
   bookdown::html_document2:
+<<<<<<< HEAD
     toc: true
   html_document:
     echo: yes
     number_sections: true
+=======
+>>>>>>> 36d2e6362ab2357a5ce501287ca4202d6f55dbc1
     theme: lumen
     toc: true
     toc_depth: 3
@@ -45,11 +48,11 @@ knit_hooks$set(inline=function(x) {
 
  El objetivo principal de nuestro proyecto es extraer, procesar y analizar sistemáticamente los datos contenidos en tickets de compra en formato PDF, transformando información no estructurada en conocimiento accesible que pueda servir para:
 
-  **Identificar patrones de compra y la evolución de costes** 
+  -Identificar patrones de compra y la evolución de costes
 
-  **Analizar hábitos de consumo**
+  -Analizar hábitos de consumo
 
-  **Optimizar estrategias comerciales**
+  -Optimizar estrategias comerciales
 
 ## Configuración inicial: Librerías y carga de datos
 
@@ -57,13 +60,13 @@ knit_hooks$set(inline=function(x) {
 
  Las librerías clave utilizadas incluyen:
 
-**tidyverse para manipulación de datos**
+-tidyverse para manipulación de datos
 
-**pdftools para extracción de texto desde PDFs**
+-pdftools para extracción de texto desde PDFs
 
-**lubridate para manejo de fechas/horas**
+-lubridate para manejo de fechas/horas
 
-**stringr para operaciones con texto mediante patrones**
+-stringr para operaciones con texto mediante patrones
 
 ### Estructura de los datos originales y proceso de transformacion
 
@@ -71,11 +74,11 @@ knit_hooks$set(inline=function(x) {
 
  Para convertir estos datos crudos en informacion estruturada y correctamente almacenada realizamos un gran número de operaciones, entre las que vale la pena destacar:
  
- **La normalizacion de datos para unificar los decimales (convertimos las comas en puntos)**
+ -La normalizacion de datos para unificar los decimales (convertimos las comas en puntos)
  
- **La validacion correcta de tipos (Nos aseguramos de que cada uno de nuestros campos tuviese el tipo de dato correcto)**
+ -La validacion correcta de tipos (Nos aseguramos de que cada uno de nuestros campos tuviese el tipo de dato correcto)
  
- **Correcciones manuales necesarias como el filtrado de tickets validos y la identificacion de tickets repetidos terminados con "O╠ée╠ü┬╝"**
+ -Correcciones manuales necesarias como el filtrado de tickets validos y la identificacion de tickets repetidos terminados con "O╠ée╠ü┬╝"
 
   Este proceso de transformacion permite un análisis confiable en fases posteriores del proyecto. Los scripts completos de transformación están disponibles en el repositorio GitHub del proyecto.
 
@@ -148,6 +151,10 @@ tabla <- df_variables %>%
 
 tabla  # Esto muestra la tabla
 ```
+<<<<<<< HEAD
+=======
+
+>>>>>>> 36d2e6362ab2357a5ce501287ca4202d6f55dbc1
 
 # Función de filtrado
 
