@@ -15,6 +15,51 @@ output:
     number_sections: no
 ---
 
+# 1. Introduccion
+
+ En la era actual de la transformación digital, los datos de transacciones comerciales representan una fuente invaluable de información para comprender el comportamiento del consumidor. Este proyecto se centra en el análisis exploratorio de tickets de compra de Mercadona, una de las cadenas de supermercados más importantes de España.
+
+ El objetivo principal de nuestro proyecto es extraer, procesar y analizar sistemáticamente los datos contenidos en tickets de compra en formato PDF, transformando información no estructurada en conocimiento accesible que pueda servir para:
+
+  **Identificar patrones de compra y la evolución de costes** 
+
+  **Analizar hábitos de consumo**
+
+  **Optimizar estrategias comerciales**
+
+## 1.1 Configuración inicial: Librerías y carga de datos
+
+ Para el procesamiento y análisis de los tickets de Mercadona, hemos implementado un módulo de código de carga de librerías en R utilizando el paquete pacman, que permite instalar y cargar paquetes de manera eficiente en una sola operación. Este enfoque garantiza la reproducibilidad del análisis y simplifica la gestión de codigo.
+
+ Las librerías clave utilizadas incluyen:
+
+**tidyverse para manipulación de datos**
+
+**pdftools para extracción de texto desde PDFs**
+
+**lubridate para manejo de fechas/horas**
+
+**stringr para operaciones con texto mediante patrones**
+
+### Estructura de los datos originales y proceso de transformacion
+
+ Los datos brutos consisten en tickets en PDF almacenados en nuestra carpeta "data"
+
+ Para convertir estos datos crudos en informacion estruturada y correctamente almacenada realizamos un gran número de operaciones, entre las que vale la pena destacar:
+ 
+ **La normalizacion de datos para unificar los decimales (convertimos las comas en puntos)**
+ 
+ **La validacion correcta de tipos (Nos aseguramos de que cada uno de nuestros campos tuviese el tipo de dato correcto)**
+ 
+ **Correcciones manuales necesarias como el filtrado de tickets validos y la identificacion de tickets repetidos terminados con "O╠ée╠ü┬╝"**
+
+  Este proceso de transformacion permite un análisis confiable en fases posteriores del proyecto. Los scripts completos de transformación están disponibles en el repositorio GitHub del proyecto.
+
+## 1.2 Descripcion de variables
+ En este apartado se presenta el análisis  detallado de las variables clave del dataset, organizado según su tipo (numéricas, categóricas, etc). Con el objetivo de visualizar mucho mas facil y entender a fondo cada una de estas variables 
+  
+
+
 ```{r setup, cache=F, echo=F, message=F, warning=F, tidy=F}
 # CONFIGURACIÓN GENERAL
 library(knitr)
@@ -37,7 +82,7 @@ knit_hooks$set(inline=function(x) {
 ```
 
 
-## Carga de librerías
+# Carga de librerías
   
 ```{r}
 library(fs)       # para listar archivos
