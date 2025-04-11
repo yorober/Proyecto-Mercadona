@@ -5,13 +5,10 @@ author: "Yordano Rodríguez, Iván Jiménez, Sergio Mut, Emma Espí, Julen Navar
 date: "2025-03-30"
 output:
   bookdown::html_document2:
-<<<<<<< HEAD
     toc: true
   html_document:
     echo: yes
     number_sections: true
-=======
->>>>>>> 36d2e6362ab2357a5ce501287ca4202d6f55dbc1
     theme: lumen
     toc: true
     toc_depth: 3
@@ -151,10 +148,7 @@ tabla <- df_variables %>%
 
 tabla  # Esto muestra la tabla
 ```
-<<<<<<< HEAD
-=======
 
->>>>>>> 36d2e6362ab2357a5ce501287ca4202d6f55dbc1
 
 # Función de filtrado
 
