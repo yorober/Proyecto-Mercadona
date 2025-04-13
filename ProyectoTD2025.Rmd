@@ -65,6 +65,21 @@ knit_hooks$set(inline=function(x) {
 
 - stringr para operaciones con texto mediante patrones
 
+```{r}
+#Carga de librerias
+
+library(fs)       # para listar archivos
+library(purrr)    # para aplicar funciones a listas
+library(pdftools)
+library(stringr)
+library(tibble)
+library(hms)
+library(lubridate)
+library(tidyverse)
+library(rticles)
+library(kableExtra)
+```
+
 ### Estructura de los datos originales y proceso de transformación
 
  Los datos brutos consisten en tickets en PDF almacenados en nuestra carpeta "data".
@@ -81,24 +96,6 @@ knit_hooks$set(inline=function(x) {
 
 ## Descripción de variables
  En este apartado se presenta el análisis  detallado de las variables clave del dataset, organizado según su tipo (numéricas, categóricas, etc). Con el objetivo de visualizar mucho más fácil y entender a fondo cada una de estas variables. Como se muestra en la Tabla \@ref(tab:mi-tabla), estas son las variables utilizadas.
-  
-  
-```{r}
-#Carga de librerias
-
-library(fs)       # para listar archivos
-library(purrr)    # para aplicar funciones a listas
-library(pdftools)
-library(stringr)
-library(tibble)
-library(hms)
-library(lubridate)
-library(tidyverse)
-library(rticles)
-library(kableExtra)
-```
-
-
 
 ```{r mi-tabla, echo=FALSE}
 
@@ -152,6 +149,8 @@ tabla  # Esto muestra la tabla
 
 # Función de filtrado
 
+Este código en R se encarga de identificar y seleccionar únicamente aquellos archivos PDF que contienen tickets de Mercadona. Inicialmente, busca todos los archivos PDF presentes en una carpeta específica. Luego, define una función que descarta archivos cuyo nombre esté corrupto o alterado y que, además, verifique el contenido del PDF. En concreto, intenta leer el documento, separarlo en líneas y confirmar que la primera línea contenga una marca característica de Mercadona. Por último, aplica este filtro a todos los archivos encontrados, obteniendo así una colección de tickets que cumplen con los criterios establecidos.
+
 ```{r}
 # Obtener todos los archivos PDF en la carpeta data
 archivos_pdf <- dir_ls("data", regexp = "\\.pdf$")
@@ -179,6 +178,8 @@ tickets_mercadona <- tickets_mercadona[tickets_mercadona != "data/ticket1.pdf"]
 
 
 # Función de extracción de información (parte 1)
+
+Este bloque se centra en extraer la información básica del ticket que aparece en la parte superior, como la fecha, la hora, el identificador del ticket, la dirección, el código postal, la localidad y el teléfono. Todo se recoge a partir de patrones de texto extraídos de las líneas del documento para formar una tabla con estos datos.
 
 ```{r}
 # Función que crea el data frame de la primera parte de los tickets.
@@ -238,6 +239,8 @@ funcion_df_parte1 <- function(lineas){
   
   
 # Función de extracción de información (parte 2)
+
+Esta funcion se encarga de identificar y extraer los productos que aparecen en el ticket. Para ello, recorre las líneas que corresponden a la sección de productos, distinguiendo entre los artículos que se venden por unidad, aquellos que se compran en varias unidades y los que se cobran por peso (como frutas o verduras). Emplea expresiones regulares (patrones) para reconocer los distintos formatos de línea y va añadiendo cada producto con sus características (cantidad, precio, importe, etc.) a una tabla.
 
 ```{r}
 # Patrones de las líneas con productos que vayan por unidad, por unidad pero que la cantidad sea mayor a 1 y por peso, respectivamente.
@@ -374,6 +377,8 @@ parse_lineas_ticket <- function(lineas) {
 
 # Función de extracción de información (parte 3)
 
+Por ultimo este tercer bloque recoge la parte final del ticket. En esta sección se extraen valores como el total a pagar, la parte abonada con tarjeta, detalles sobre el parking (incluyendo horas de entrada y salida), información sobre la tarjeta (últimos dígitos, tipo) y datos relacionados con los impuestos (IVA), finalizando asi la extraccion de informacion.
+
 ```{r}
 funcion_df_parte3 <- function(lineas){
   # Leer el PDF
@@ -488,6 +493,8 @@ funcion_df_parte3 <- function(lineas){
 
 
 # Bucle de generación del DataFrame
+
+Por último, este bloque de iteración recorre cada uno de los tickets previamente filtrados. Para cada ticket se obtiene el texto completo, se lo divide en líneas y se aplican las funciones anteriores para extraer la información general, los productos y el resumen final. Finalmente, los datos obtenidos se van acumulando en distintas tablas y se combinan, quedando listas para su análisis.
 
 ```{r}
 
