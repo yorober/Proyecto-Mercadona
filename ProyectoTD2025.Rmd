@@ -146,8 +146,11 @@ tabla <- df_variables %>%
 tabla  # Esto muestra la tabla
 ```
 
+# Importacion de datos
 
-# Función de filtrado
+A partir de aqui comienza el proceso de  lectura, validación y extracción de datos de tickets de compra en PDF emitidos por Mercadona, comenzando por filtrar los archivos que contienen tickets válidos, para luego aplicar funciones específicas que extraen los datos generales del encabezado (fecha, hora, dirección, etc.), la información detallada de los productos (teniendo en cuenta diferentes formatos como unidades, múltiples cantidades o productos vendidos por peso) y los totales finales (incluyendo impuestos, pagos y detalles de parking), combinándolos finalmente en estructuras de datos listas para su análisis como se verá a continuacion.
+
+## Función de filtrado
 
 Este código en R se encarga de identificar y seleccionar únicamente aquellos archivos PDF que contienen tickets de Mercadona. Inicialmente, busca todos los archivos PDF presentes en una carpeta específica. Luego, define una función que descarta archivos cuyo nombre esté corrupto o alterado y que, además, verifique el contenido del PDF. En concreto, intenta leer el documento, separarlo en líneas y confirmar que la primera línea contenga una marca característica de Mercadona. Por último, aplica este filtro a todos los archivos encontrados, obteniendo así una colección de tickets que cumplen con los criterios establecidos.
 
@@ -177,7 +180,7 @@ tickets_mercadona <- tickets_mercadona[tickets_mercadona != "data/ticket1.pdf"]
 ```
 
 
-# Función de extracción de información (parte 1)
+## Función de extracción de información (parte 1)
 
 Este bloque se centra en extraer la información básica del ticket que aparece en la parte superior, como la fecha, la hora, el identificador del ticket, la dirección, el código postal, la localidad y el teléfono. Todo se recoge a partir de patrones de texto extraídos de las líneas del documento para formar una tabla con estos datos.
 
@@ -238,7 +241,7 @@ funcion_df_parte1 <- function(lineas){
 ```
   
   
-# Función de extracción de información (parte 2)
+## Función de extracción de información (parte 2)
 
 Esta funcion se encarga de identificar y extraer los productos que aparecen en el ticket. Para ello, recorre las líneas que corresponden a la sección de productos, distinguiendo entre los artículos que se venden por unidad, aquellos que se compran en varias unidades y los que se cobran por peso (como frutas o verduras). Emplea expresiones regulares (patrones) para reconocer los distintos formatos de línea y va añadiendo cada producto con sus características (cantidad, precio, importe, etc.) a una tabla.
 
@@ -375,7 +378,7 @@ parse_lineas_ticket <- function(lineas) {
 ```
 
 
-# Función de extracción de información (parte 3)
+## Función de extracción de información (parte 3)
 
 Por ultimo este tercer bloque recoge la parte final del ticket. En esta sección se extraen valores como el total a pagar, la parte abonada con tarjeta, detalles sobre el parking (incluyendo horas de entrada y salida), información sobre la tarjeta (últimos dígitos, tipo) y datos relacionados con los impuestos (IVA), finalizando asi la extraccion de informacion.
 
@@ -492,7 +495,7 @@ funcion_df_parte3 <- function(lineas){
 ```
 
 
-# Bucle de generación del DataFrame
+## Bucle de generación del DataFrame
 
 Por último, este bloque de iteración recorre cada uno de los tickets previamente filtrados. Para cada ticket se obtiene el texto completo, se lo divide en líneas y se aplican las funciones anteriores para extraer la información general, los productos y el resumen final. Finalmente, los datos obtenidos se van acumulando en distintas tablas y se combinan, quedando listas para su análisis.
 
