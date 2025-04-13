@@ -611,6 +611,6 @@ head(productos)
 
 - ¿Se observa alguna estacionalidad en la venta de ciertos productos como helados, bebidas o frutas de temporada?
 
-- ¿Qué proporción de los tickets no tienen identificador de tarjeta bancaria? ¿Podría eso asociarse con pagos en efectivo?
-
 - ¿Cuál es la hora promedio de compra? ¿Los hábitos cambian en diferentes municipios?
+
+- ¿Qué proporción de los tickets no tienen identificador de tarjeta bancaria? ¿Podría eso asociarse con pagos en efectivo?
