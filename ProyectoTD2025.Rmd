@@ -563,6 +563,7 @@ head(productos)
 
 # Preguntas
 
+
 - ¿Cuáles son los 5 productos, de los vendidos por unidades, con más ventas? ¿Cuántas unidades de cada uno se han vendido?
 
 - Si consideramos la categoría de FRUTAS Y VERDURAS. ¿Cuáles son los 5 productos más vendidos? ¿Cuántos kilos se han vendido de cada uno de estos productos?
@@ -574,3 +575,42 @@ head(productos)
 - ¿Cuál es la procedencia de los tickets? ¿Qué ciudad/pueblo tiene un mayor número de tickets?
 
 - Muestra mediante un diagrama el número de tickets recogidos cada día de la semana. Si tuvieses que cerrar un día entre semana,  ¿qué día lo harías?
+
+- ¿Cuál es el importe medio de los tickets por municipio? ¿Se observan diferencias significativas entre zonas?
+
+- ¿Qué día de la semana registra un mayor importe total acumulado de compras?
+
+- ¿Cuál es el ticket de mayor importe registrado? ¿Qué productos incluye?
+
+- ¿Qué porcentaje de las compras incluye productos con peso (por kilo) frente a productos por unidad?
+
+- ¿Cuál es el gasto medio por categoría de producto? (por ejemplo, LÁCTEOS, LIMPIEZA, BEBIDAS...)
+
+- ¿Cuál es la evolución del uso del pago con tarjeta a lo largo del tiempo? ¿Se observan cambios o tendencias?
+
+- ¿Qué productos tienen mayor variabilidad en el precio por kilo a lo largo del tiempo?
+
+- ¿Existen diferencias significativas entre el uso del parking según el día de la semana?
+
+- ¿Qué relación hay entre el tiempo de estancia en el parking y el importe del ticket?
+
+- ¿Hay productos que aparecen juntos con frecuencia en un mismo ticket? Identifica al menos 3 pares comunes.
+- ¿Cuál es la distribución del gasto total por ticket? ¿Es simétrica o presenta valores extremos?
+
+- ¿Cuántos tickets contienen exactamente un solo producto? ¿Y cuántos contienen más de 10 productos?
+
+- ¿Qué productos tienen mayor número de devoluciones o errores registrados? (si los hay identificados)
+
+- ¿Qué porcentaje del total facturado corresponde a las categorías de alimentación frente a otras categorías (hogar, higiene, etc.)?
+
+- ¿Cuál es el importe medio por kilogramo en productos de carne frente a pescado?
+
+- ¿Qué municipios tienen tickets con importes promedio más altos en productos frescos?
+
+- ¿Cuál es el comportamiento de compra en fines de semana comparado con días laborales?
+
+- ¿Se observa alguna estacionalidad en la venta de ciertos productos como helados, bebidas o frutas de temporada?
+
+- ¿Qué proporción de los tickets no tienen identificador de tarjeta bancaria? ¿Podría eso asociarse con pagos en efectivo?
+
+- ¿Cuál es la hora promedio de compra? ¿Los hábitos cambian en diferentes municipios?
