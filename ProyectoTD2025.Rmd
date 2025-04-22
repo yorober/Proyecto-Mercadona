@@ -65,7 +65,7 @@ knit_hooks$set(inline=function(x) {
 
 - stringr para operaciones con texto mediante patrones
 
-```{r}
+```{r, echo = FALSE}
 #Carga de librerias
 
 library(fs)       # para listar archivos
@@ -573,39 +573,61 @@ head(productos)
 
 # Preguntas
 
+ Vale gente, he separado y dividido las preguntas y se las he asignado a cada grupo basándome en el desempeño durante la primera fase del proyecto. Es SUMAMENTE importante que a la hora de responder las preguntas lo hagáis con la siguiente estructura:
 
-- ¿Cuáles son los 5 productos, de los vendidos por unidades, con más ventas? ¿Cuántas unidades de cada uno se han vendido?
+1) Pregunta.
 
-- Si consideramos la categoría de FRUTAS Y VERDURAS. ¿Cuáles son los 5 productos más vendidos? ¿Cuántos kilos se han vendido de cada uno de estos productos?
+2) BREVE introducción a la pregunta o problemática. Esta debe ser planteada SIN tecnicismos de ningún tipo y con lenguaje orientado al público general, es decir, no quiero que las introducciones tengan ni spanglish (palabras como committear, plotear, rbinear, etc.) ni fragmentos de código en la explicación (nada de "para agrupar esta columna hicimos un mutate y luego un group by para después hacer un summarize"). Podéis hacer chistes, juegos de palabras, referencias a otros proyectos, comparaciones o cualquier otra cosa que creáis que hace entretenida y fácil de leer esta introducción, pero siempre dentro de un nivel de formalismo.
 
-- Si consideramos la categoría de PESCADO. ¿Cuáles son los 5 productos más vendidos? ¿Cuántos kilos se han vendido de cada uno de estos productos?
+3) La tabla, figura, plot, etc. que sirve para demostrar la correcta realización de la pregunta. En cada una de las preguntas añadí una sugerencia de cómo pienso que PODRÍAN hacer vuestra parte. Debéis tener en cuenta que estas sugerencias no se han probado y que por lo tanto pueden terminar siendo innecesarias o erróneas.
 
-- Muestra mediante un gráfico de líneas cómo ha variado el precio por kilo de las bananas y los plátanos en los tickets disponibles, a lo largo del tiempo.
+4) Respuesta TEXTUAL a la pregunta que responda DIRECTAMENTE a la problemática planteada y que dé paso a la próxima pregunta. Sobra decir que esta parte sigue las mismas reglas que la parte 2, nada de spanglish o código.
 
-- ¿Cuál es la procedencia de los tickets? ¿Qué ciudad/pueblo tiene un mayor número de tickets?
+  Finalmente, sobra decir que podéis pedir ayuda a otros miembros, a los profesores y a ChatGPT, pero tened en cuenta que debéis explicar y entender bien vuestro código en caso de preguntárselo a este último.
 
-- Muestra mediante un diagrama el número de tickets recogidos cada día de la semana. Si tuvieses que cerrar un día entre semana,  ¿qué día lo harías?
+
+## Julen y Emma
+- ¿Cuál es el ticket de mayor importe registrado? ¿Qué productos incluye?
+(Esta es sencilla buscais en el df de info_ticket cual tiene mayor importe y luego mostrais todos los productos asociados a la factura simplificada de ese ticket, en este caso para graficarlo podeis simplemente meter todos los tickets en una grafica y señalar con un simbolo en el plot el ticket que tenga el valor mas alto )
 
 - ¿Cuál es el importe medio de los tickets por municipio? ¿Se observan diferencias significativas entre zonas?
+(agrupais los datos por ciudad y mostrais en graficas diferentes (por ciudad) la media del importe de esos tickets, y luego respondeis a la pregunta)
 
-- ¿Cuál es el ticket de mayor importe registrado? ¿Qué productos incluye?
+- ¿Cuál es la procedencia de los tickets? ¿Qué ciudad/pueblo tiene un mayor número de tickets?
+(Decis cuales son los pueblos que tenemos en la tabla y luego agrupais los datos por ciudad y sumais el numero de tickets, luego lo podeis mostrar en un grafico de barras)
 
 - ¿Qué porcentaje de las compras incluye productos con peso (por kilo) frente a productos por unidad?
-
-- ¿Cuál es el gasto medio por categoría de producto?
-
-- ¿Qué categorías tienen mayor variabilidad en el precio por kilo a lo largo del tiempo?
-
-- ¿Qué relación hay entre el tiempo de estancia en el parking y el importe del ticket?
-
-- ¿Cuál es la distribución del gasto total por ticket? ¿Es simétrica o presenta valores extremos?
+(juntais los df de productos y infoticket y luego haceis un promedio de los prodcutos por peso y los productos por unidad y los poneis en un grafico de barras o en graficas separadas para cada tipo)
 
 - ¿Qué cantidad de productos es la más habitual en los tickets?
+(Juntais los df y agrupais por factura simplificada, luego haceis un sumatorio de todos los productos y lo mostrais el que mas se repita)
+
+## Yordano e Ivan
+
+- Si consideramos la categoría de PESCADO. ¿Cuáles son los 5 productos más vendidos? ¿Cuántos kilos se han vendido de cada uno de estos productos?
+- Muestra mediante un diagrama el número de tickets recogidos cada día de la semana. Si tuvieses que cerrar un día entre semana,  ¿qué día lo harías?
+- ¿Qué categorías tienen mayor variabilidad en el precio por kilo a lo largo del tiempo?
+- ¿Qué relación hay entre el tiempo de estancia en el parking y el importe del ticket?
+- ¿Cuál es la distribución del gasto total por ticket? ¿Es simétrica o presenta valores extremos?
+- ¿Qué 5 productos son más frecuentes por estación del año?
+- ¿Cuál es la hora promedio de compra? ¿Los hábitos cambian en diferentes municipios?
+
+## Sergio y Nicolas 
 
 - ¿Cuál es el importe medio por kilogramo en productos de FRUTAS Y VERDURAS frente a PESCADO?
+(Para calcular esto, recomiendo pasarle el df de productos a chatgpt y pedirle que le saque todas las frutas y verduras, porque no le añadimos un calificador a estas, luego sumais el importe de todas estas y lo mismo todos los datos los que digan PESCADO y lo muestran en un grafico de barras.)
 
 - ¿Qué municipios tienen tickets con importes promedio más altos en productos por unidad?
+(Agrupais por municipio y sacais los productos por unidad luego haceis un promedio del importe por municipio)
 
-- ¿Qué 5 productos son más frecuentes por estación del año?
+- ¿Cuáles son los 5 productos, de los vendidos por unidades, con más ventas? ¿Cuántas unidades de cada uno se han vendido?
+(agruparíamos por Producto, sumaríamos las unidades vendidas (sum(Cantidad)), y ordenaríamos en orden descendente para seleccionar los 5 primeros, mostrando así los artículos más comprados por volumen, luego los graficais)
 
-- ¿Cuál es la hora promedio de compra? ¿Los hábitos cambian en diferentes municipios?
+- Si consideramos la categoría de FRUTAS Y VERDURAS. ¿Cuáles son los 5 productos más vendidos? ¿Cuántos kilos se han vendido de cada uno de estos productos?
+(ya seguro teneis de antes las frutas y verduras asi que agruparíamos por producto, sumaríamos los kilos (sum(Peso_kg)), y ordenaríamos para obtener los 5 más vendidos por peso, lo que revelaría los preferidos en esta categoría.)
+
+- ¿Cuál es el gasto medio por categoría de producto?
+(Las categorias son frutas/verdura, pescados, y productos varios, todo lo que no sea de los 2 primeros es un producto vario , sabiendo esto agruparíamos por categoría y calcularíamos el importe promedio (mean(Importe)), dando una visión del gasto por tipo de producto.)
+
+- Muestra mediante un gráfico de líneas cómo ha variado el precio por kilo de las bananas y los plátanos en los tickets disponibles, a lo largo del tiempo.
+(Filtraríamos productos con esos nombres, uniríamos con info_tickets para obtener la fecha, agruparíamos por fecha y producto, calcularíamos el precio medio por kg (mean(PrecioKg)), y graficaríamos con ggplot2 usando líneas (geom_line()) y facetas (facet_wrap) para comparar ambas tendencias en el tiempo.)
