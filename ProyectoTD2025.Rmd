@@ -617,6 +617,39 @@ head(productos)
 - ¿Cuál es el importe medio por kilogramo en productos de FRUTAS Y VERDURAS frente a PESCADO?
 (Para calcular esto, recomiendo pasarle el df de productos a chatgpt y pedirle que le saque todas las frutas y verduras, porque no le añadimos un calificador a estas, luego sumais el importe de todas estas y lo mismo todos los datos los que digan PESCADO y lo muestran en un grafico de barras.)
 
+
+Imagina que estás en la frutería del Mercadona con un billete de 10€. Quieres saber si te rinde más en bananas o en lubinas. Esta pregunta va justamente de eso: ¿en qué se va más el dinero por kilo, en frutas y verduras o en pescado? Aunque no tengamos etiquetas perfectas, podemos inferir de los nombres cuáles productos son de cada tipo. Vamos a ver quién gana esta batalla del precio por kilo.
+
+```{r}
+# Seleccionar productos con nombre relacionado a frutas y verduras
+frutas_verduras <- productos %>%
+  filter(str_detect(tolower(Producto), "banana|plátano|tomate|cebolla|zanahoria|lechuga|manzana|pera|patata|limón|naranja|pepino|uvas|kiwi")) %>%
+  filter(!is.na(PrecioKg))
+
+# Seleccionar productos de pescado
+pescado <- productos %>%
+  filter(str_detect(tolower(Producto), "pescado|merluza|salmón|lubina|atún|dorada|boquerón|bacalao")) %>%
+  filter(!is.na(PrecioKg))
+
+# Calcular medias
+media_frutas <- mean(frutas_verduras$PrecioKg)
+media_pescado <- mean(pescado$PrecioKg)
+
+# Crear data frame resumen
+precio_medio <- tibble(
+  Categoria = c("Frutas y Verduras", "Pescado"),
+  PrecioMedioKg = c(media_frutas, media_pescado)
+)
+
+# Graficar
+ggplot(precio_medio, aes(x = Categoria, y = PrecioMedioKg, fill = Categoria)) +
+  geom_col() +
+  labs(title = "Precio medio por Kg", y = "€ por Kg", x = "") +
+  theme_minimal()
+
+```
+
+
 - ¿Qué municipios tienen tickets con importes promedio más altos en productos por unidad?
 (Agrupais por municipio y sacais los productos por unidad luego haceis un promedio del importe por municipio)
 
