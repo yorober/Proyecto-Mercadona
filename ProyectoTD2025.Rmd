@@ -648,6 +648,7 @@ ggplot(precio_medio, aes(x = Categoria, y = PrecioMedioKg, fill = Categoria)) +
   theme_minimal()
 
 ```
+El análisis revela que el pescado es significativamente más caro por kilo en comparación con las frutas y verduras. Mientras que con frutas puedes llenar la bolsa por unos pocos euros, una buena merluza te deja la cartera tiritando. Esta diferencia es esperable por la naturaleza del producto, pero sirve para entender mejor cómo se distribuye el gasto en la compra.
 
 
 - ¿Qué municipios tienen tickets con importes promedio más altos en productos por unidad?
