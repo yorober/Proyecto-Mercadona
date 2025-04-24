@@ -691,6 +691,45 @@ ggplot(info_tickets, aes(x=Importe_Final)) +
 
 
 - ¿Qué 5 productos son más frecuentes por estación del año?
+
+```{r}
+tickets_invierno <- info_tickets %>%
+  mutate(Mes = month(Fecha)) %>%
+  filter(3 >= Mes) %>%
+  left_join(productos, by="Factura_simplificada") %>%
+  group_by(Producto) %>%
+  summarise(Num = n()) %>%
+  arrange(desc(Num))
+head(tickets_invierno, 5)
+
+tickets_primavera <- info_tickets %>%
+  mutate(Mes = month(Fecha)) %>%
+  filter(4 <= Mes & 6 >= Mes) %>%
+  left_join(productos, by="Factura_simplificada") %>%
+  group_by(Producto) %>%
+  summarise(Num = n()) %>%
+  arrange(desc(Num))
+head(tickets_primavera, 5)
+
+tickets_verano <- info_tickets %>%
+  mutate(Mes = month(Fecha)) %>%
+  filter(7 <= Mes & 9 >= Mes) %>%
+  left_join(productos, by="Factura_simplificada") %>%
+  group_by(Producto) %>%
+  summarise(Num = n()) %>%
+  arrange(desc(Num))
+head(tickets_verano, 5)
+
+tickets_otonyo <- info_tickets %>%
+  mutate(Mes = month(Fecha)) %>%
+  filter(10 <= Mes & 12 >= Mes) %>%
+  left_join(productos, by="Factura_simplificada") %>%
+  group_by(Producto) %>%
+  summarise(Num = n()) %>%
+  arrange(desc(Num))
+head(tickets_otonyo, 5)
+```
+
 - ¿Cuál es la hora promedio de compra? ¿Los hábitos cambian en diferentes municipios?
 
 ## Sergio y Nicolas 
