@@ -602,6 +602,7 @@ head(productos)
 - ¿Qué cantidad de productos es la más habitual en los tickets?
 (Juntais los df y agrupais por factura simplificada, luego haceis un sumatorio de todos los productos y lo mostrais el que mas se repita)
 
+
 ## Yordano e Iván
 
 - Si consideramos la categoría de PESCADO. ¿Cuáles son los 5 productos más vendidos? ¿Cuántos kilos se han vendido de cada uno de estos productos?
@@ -619,6 +620,7 @@ pescado2 <- head(pescado, 5)
 pescado2
 ```
 
+
 - Muestra mediante un diagrama el número de tickets recogidos cada día de la semana. Si tuvieses que cerrar un día entre semana,  ¿qué día lo harías?
 
 ```{r}
@@ -630,6 +632,7 @@ ggplot(tickets_por_dia, aes(x=Dia_Semana, y=Total_Tickets)) +
   geom_col(aes(fill=Dia_Semana)) +
   labs(title = "Número de tickets por día de la semana")
 ```
+
 
 - ¿Qué categorías tienen mayor variabilidad en el precio a lo largo del tiempo?
 
@@ -661,7 +664,22 @@ precios_pescado
 
 ```
 
+
 - ¿Qué relación hay entre el tiempo de estancia en el parking y el importe del ticket?
+
+```{r}
+tiempo_ticket <- info_tickets %>%
+  select(Parking, ParkingEntrada, ParkingSalida, Importe_Final) %>%
+  filter(Parking == "SI") %>%
+  mutate(Tiempo = difftime(ParkingSalida, ParkingEntrada)) %>%
+  arrange(Importe_Final)
+
+ggplot(tiempo_ticket, aes(x=Tiempo, y=Importe_Final)) +
+  geom_point() +
+  geom_smooth(method = "lm", col = "red", se = FALSE) +
+  labs(title = "Relación entre estadía en el parking e importe del ticket")
+```
+
 - ¿Cuál es la distribución del gasto total por ticket? ¿Es simétrica o presenta valores extremos?
 - ¿Qué 5 productos son más frecuentes por estación del año?
 - ¿Cuál es la hora promedio de compra? ¿Los hábitos cambian en diferentes municipios?
