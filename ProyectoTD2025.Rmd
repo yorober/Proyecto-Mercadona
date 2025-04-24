@@ -680,7 +680,16 @@ ggplot(tiempo_ticket, aes(x=Tiempo, y=Importe_Final)) +
   labs(title = "Relación entre estadía en el parking e importe del ticket")
 ```
 
+
 - ¿Cuál es la distribución del gasto total por ticket? ¿Es simétrica o presenta valores extremos?
+
+```{r}
+ggplot(info_tickets, aes(x=Importe_Final)) +
+  geom_histogram(bins = 50) +
+  labs(title = "Distribución del importe de los tickets")
+```
+
+
 - ¿Qué 5 productos son más frecuentes por estación del año?
 - ¿Cuál es la hora promedio de compra? ¿Los hábitos cambian en diferentes municipios?
 
