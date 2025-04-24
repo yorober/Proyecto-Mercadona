@@ -630,7 +630,35 @@ ggplot(tickets_por_dia, aes(x=Dia_Semana, y=Total_Tickets)) +
   labs(title = "Número de tickets por día de la semana")
 ```
 
-- ¿Qué categorías tienen mayor variabilidad en el precio por kilo a lo largo del tiempo?
+- ¿Qué categorías tienen mayor variabilidad en el precio a lo largo del tiempo?
+
+```{r}
+precios_unidad <- productos %>%
+  left_join(info_tickets, by="Factura_simplificada") %>%
+  filter(is.na(PrecioKg) & !is.na(Cantidad)) %>%
+  mutate(Anyo = year(Fecha)) %>%
+  group_by(Anyo) %>%
+  summarise(Precio_medio = mean(PrecioUnitario))
+precios_unidad
+
+precios_frutas_verduras <- productos %>%
+  left_join(info_tickets, by="Factura_simplificada") %>%
+  filter(!is.na(PrecioKg) & !is.na(Cantidad)) %>%
+  mutate(Anyo = year(Fecha)) %>%
+  group_by(Anyo) %>%
+  summarise(Precio_medio = mean(PrecioKg))
+precios_frutas_verduras
+
+precios_pescado <- productos %>%
+  left_join(info_tickets, by="Factura_simplificada") %>%
+  filter(!is.na(PrecioKg) & is.na(Cantidad)) %>%
+  mutate(Anyo = year(Fecha)) %>%
+  group_by(Anyo) %>%
+  summarise(Precio_medio = mean(PrecioKg))
+precios_pescado
+
+```
+
 - ¿Qué relación hay entre el tiempo de estancia en el parking y el importe del ticket?
 - ¿Cuál es la distribución del gasto total por ticket? ¿Es simétrica o presenta valores extremos?
 - ¿Qué 5 productos son más frecuentes por estación del año?
