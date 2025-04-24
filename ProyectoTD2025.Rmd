@@ -4,18 +4,18 @@ subtitle: "Tratamiento de Datos, MiniProyecto de Mercadona"
 author: "Yordano Rodríguez, Iván Jiménez, Sergio Mut, Emma Espí, Julen Navarro, Nicolás Aroca"
 date: "2025-03-30"
 output:
-  bookdown::html_document2:
+  bookdown::pdf_document2:
+    number_sections: true
     toc: true
+    toc_depth: 3
   html_document:
     echo: yes
     number_sections: true
     theme: lumen
     toc: true
     toc_depth: 3
-  bookdown::pdf_document2:
-    number_sections: true
+  bookdown::html_document2:
     toc: true
-    toc_depth: 3
 ---
 
 ```{r setup, cache=F, echo=F, message=F, warning=F, tidy=F}
@@ -749,10 +749,10 @@ hora_media_municipios <- info_tickets %>%
   mutate(Hora_Media = as_hms(floor(segundos))) %>%
   select(Municipio, Hora_Media)
 
-ggplot(hora_media_municipios, aes(x=Municipio, y=Hora_Media)) +
+ggplot(hora_media_municipios, aes(x=Hora_Media, y=Municipio)) +
   geom_point() + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1)) +
-  geom_hline(yintercept = hora_media[[1]], color = "red", size = 0.75) + 
+  geom_vline(xintercept = hora_media[[1]], color = "red", size = 0.75) + 
   labs(title = "Hora media de compra por municipio")
 ```
 
