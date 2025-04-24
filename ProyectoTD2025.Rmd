@@ -338,7 +338,7 @@ parse_lineas_ticket <- function(lineas) {
     }
     
     # Detectar las líneas que contengan el nombre de los productos por peso.
-    else if (str_detect(linea_sin_trim, "^\\s{6}\\S")) {
+    else if (str_detect(linea_sin_trim, "^\\s{5,7}\\S")) {
       nombre_producto <- str_trim(linea)
       cantidad <- NA
     }
