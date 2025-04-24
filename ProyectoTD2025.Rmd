@@ -602,9 +602,23 @@ head(productos)
 - ¿Qué cantidad de productos es la más habitual en los tickets?
 (Juntais los df y agrupais por factura simplificada, luego haceis un sumatorio de todos los productos y lo mostrais el que mas se repita)
 
-## Yordano e Ivan
+## Yordano e Iván
 
 - Si consideramos la categoría de PESCADO. ¿Cuáles son los 5 productos más vendidos? ¿Cuántos kilos se han vendido de cada uno de estos productos?
+
+```{r}
+pescado <- productos %>%
+  filter(!is.na(PrecioKg) & is.na(Cantidad)) %>% 
+  group_by(Producto) %>%
+  summarise(
+    cant = n(),
+    kilos = sum(Peso_kg)) %>%
+  arrange(desc(cant))
+
+pescado2 <- head(pescado, 5)
+pescado2
+```
+
 - Muestra mediante un diagrama el número de tickets recogidos cada día de la semana. Si tuvieses que cerrar un día entre semana,  ¿qué día lo harías?
 - ¿Qué categorías tienen mayor variabilidad en el precio por kilo a lo largo del tiempo?
 - ¿Qué relación hay entre el tiempo de estancia en el parking y el importe del ticket?
