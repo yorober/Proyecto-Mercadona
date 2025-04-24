@@ -623,15 +623,7 @@ pescado2
 
 ```{r}
 tickets_por_dia <- info_tickets %>%
-<<<<<<< HEAD
-  mutate(Dia_Semana = wday(Fecha, label = TRUE, week_start = 1, abbr = FALSE)) %>% 
-  count(Dia_Semana, name = "Total_Tickets")
-```
 
-
-
-- ¿Qué categorías tienen mayor variabilidad en el precio por kilo a lo largo del tiempo?
-=======
   summarise(Dia_Semana = wday(Fecha, label = TRUE, week_start = 1, abbr = FALSE)) %>% 
   count(Dia_Semana, name = "Total_Tickets")
 ggplot(tickets_por_dia, aes(x=Dia_Semana, y=Total_Tickets)) +
@@ -642,6 +634,7 @@ ggplot(tickets_por_dia, aes(x=Dia_Semana, y=Total_Tickets)) +
 - ¿Qué categorías tienen mayor variabilidad en el precio a lo largo del tiempo?
 
 ```{r}
+
 precios_unidad <- productos %>%
   left_join(info_tickets, by="Factura_simplificada") %>%
   filter(is.na(PrecioKg) & !is.na(Cantidad)) %>%
@@ -668,7 +661,6 @@ precios_pescado
 
 ```
 
->>>>>>> 4d816666909579474cad7d7e256ec78f593c63a4
 - ¿Qué relación hay entre el tiempo de estancia en el parking y el importe del ticket?
 - ¿Cuál es la distribución del gasto total por ticket? ¿Es simétrica o presenta valores extremos?
 - ¿Qué 5 productos son más frecuentes por estación del año?
