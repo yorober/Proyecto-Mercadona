@@ -745,14 +745,15 @@ hora_media <- info_tickets %>%
 
 hora_media_municipios <- info_tickets %>%
   group_by(Municipio) %>%
-  mutate(segundos = period_to_seconds(hms(Hora))) %>%
-  mutate(Hora_media = floor(mean(segundos))) %>%
-  mutate(Hora_Media = sprintf("%02d:%02d:%02d", 
-                            hour(Hora_media), 
-                            minute(Hora_media), 
-                            second(Hora_media))) %>%
-  mutate(Hora_Media = as_hms(Hora_Media)) %>%
+  summarise(segundos = mean(period_to_seconds(hms(Hora)))) %>%
+  mutate(Hora_Media = as_hms(floor(segundos))) %>%
   select(Municipio, Hora_Media)
+
+ggplot(hora_media_municipios, aes(x=Municipio, y=Hora_Media)) +
+  geom_point() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1)) +
+  geom_hline(yintercept = hora_media[[1]], color = "red", size = 0.75) + 
+  labs(title = "Hora media de compra por municipio")
 ```
 
 
