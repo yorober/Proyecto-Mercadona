@@ -620,6 +620,16 @@ pescado2
 ```
 
 - Muestra mediante un diagrama el número de tickets recogidos cada día de la semana. Si tuvieses que cerrar un día entre semana,  ¿qué día lo harías?
+
+```{r}
+tickets_por_dia <- info_tickets %>%
+  summarise(Dia_Semana = wday(Fecha, label = TRUE, week_start = 1, abbr = FALSE)) %>% 
+  count(Dia_Semana, name = "Total_Tickets")
+ggplot(tickets_por_dia, aes(x=Dia_Semana, y=Total_Tickets)) +
+  geom_col(aes(fill=Dia_Semana)) +
+  labs(title = "Número de tickets por día de la semana")
+```
+
 - ¿Qué categorías tienen mayor variabilidad en el precio por kilo a lo largo del tiempo?
 - ¿Qué relación hay entre el tiempo de estancia en el parking y el importe del ticket?
 - ¿Cuál es la distribución del gasto total por ticket? ¿Es simétrica o presenta valores extremos?
