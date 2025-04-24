@@ -730,7 +730,31 @@ tickets_otonyo <- info_tickets %>%
 head(tickets_otonyo, 5)
 ```
 
+
 - ¿Cuál es la hora promedio de compra? ¿Los hábitos cambian en diferentes municipios?
+
+```{r}
+hora_media <- info_tickets %>%
+  summarise(segundos = period_to_seconds(hms(Hora))) %>%
+  summarise(Hora_media = floor(mean(segundos))) %>%
+  summarise(Hora_Media = sprintf("%02d:%02d:%02d", 
+                            hour(Hora_media), 
+                            minute(Hora_media), 
+                            second(Hora_media))) %>%
+  mutate(Hora_Media = as_hms(Hora_Media))
+
+hora_media_municipios <- info_tickets %>%
+  group_by(Municipio) %>%
+  mutate(segundos = period_to_seconds(hms(Hora))) %>%
+  mutate(Hora_media = floor(mean(segundos))) %>%
+  mutate(Hora_Media = sprintf("%02d:%02d:%02d", 
+                            hour(Hora_media), 
+                            minute(Hora_media), 
+                            second(Hora_media))) %>%
+  mutate(Hora_Media = as_hms(Hora_Media)) %>%
+  select(Municipio, Hora_Media)
+```
+
 
 ## Sergio y Nicolas 
 
