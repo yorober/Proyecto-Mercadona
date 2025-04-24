@@ -606,6 +606,15 @@ head(productos)
 
 - Si consideramos la categoría de PESCADO. ¿Cuáles son los 5 productos más vendidos? ¿Cuántos kilos se han vendido de cada uno de estos productos?
 - Muestra mediante un diagrama el número de tickets recogidos cada día de la semana. Si tuvieses que cerrar un día entre semana,  ¿qué día lo harías?
+
+```{r}
+tickets_por_dia <- info_tickets %>%
+  mutate(Dia_Semana = wday(Fecha, label = TRUE, week_start = 1, abbr = FALSE)) %>% 
+  count(Dia_Semana, name = "Total_Tickets")
+```
+
+
+
 - ¿Qué categorías tienen mayor variabilidad en el precio por kilo a lo largo del tiempo?
 - ¿Qué relación hay entre el tiempo de estancia en el parking y el importe del ticket?
 - ¿Cuál es la distribución del gasto total por ticket? ¿Es simétrica o presenta valores extremos?
@@ -644,7 +653,6 @@ ggplot(precio_medio, aes(x = Categoria, y = PrecioMedioKg, fill = Categoria)) +
   geom_col() +
   labs(title = "Precio medio por Kg", y = "€ por Kg", x = "") +
   theme_minimal()
-
 ```
 El análisis revela que el pescado es significativamente más caro por kilo en comparación con las frutas y verduras. Mientras que con frutas puedes llenar la bolsa por unos pocos euros, una buena merluza te deja la cartera tiritando. Esta diferencia es esperable por la naturaleza del producto, pero sirve para entender mejor cómo se distribuye el gasto en la compra.
 
