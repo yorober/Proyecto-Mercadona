@@ -623,13 +623,11 @@ Imagina que estás en la frutería del Mercadona con un billete de 10€. Quiere
 ```{r}
 # Seleccionar productos con nombre relacionado a frutas y verduras
 frutas_verduras <- productos %>%
-  filter(str_detect(tolower(Producto), "banana|plátano|tomate|cebolla|zanahoria|lechuga|manzana|pera|patata|limón|naranja|pepino|uvas|kiwi")) %>%
-  filter(!is.na(PrecioKg))
+  filter(!is.na(PrecioKg) & !is.na(Cantidad))
 
 # Seleccionar productos de pescado
 pescado <- productos %>%
-  filter(str_detect(tolower(Producto), "pescado|merluza|salmón|lubina|atún|dorada|boquerón|bacalao")) %>%
-  filter(!is.na(PrecioKg))
+  filter(!is.na(PrecioKg) & is.na(Cantidad))
 
 # Calcular medias
 media_frutas <- mean(frutas_verduras$PrecioKg)
