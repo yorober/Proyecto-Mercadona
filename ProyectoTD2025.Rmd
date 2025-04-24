@@ -602,13 +602,28 @@ head(productos)
 - ¿Qué cantidad de productos es la más habitual en los tickets?
 (Juntais los df y agrupais por factura simplificada, luego haceis un sumatorio de todos los productos y lo mostrais el que mas se repita)
 
-## Yordano e Ivan
+## Yordano e Iván
 
 - Si consideramos la categoría de PESCADO. ¿Cuáles son los 5 productos más vendidos? ¿Cuántos kilos se han vendido de cada uno de estos productos?
+
+```{r}
+pescado <- productos %>%
+  filter(!is.na(PrecioKg) & is.na(Cantidad)) %>% 
+  group_by(Producto) %>%
+  summarise(
+    cant = n(),
+    kilos = sum(Peso_kg)) %>%
+  arrange(desc(cant))
+
+pescado2 <- head(pescado, 5)
+pescado2
+```
+
 - Muestra mediante un diagrama el número de tickets recogidos cada día de la semana. Si tuvieses que cerrar un día entre semana,  ¿qué día lo harías?
 
 ```{r}
 tickets_por_dia <- info_tickets %>%
+<<<<<<< HEAD
   mutate(Dia_Semana = wday(Fecha, label = TRUE, week_start = 1, abbr = FALSE)) %>% 
   count(Dia_Semana, name = "Total_Tickets")
 ```
@@ -616,6 +631,44 @@ tickets_por_dia <- info_tickets %>%
 
 
 - ¿Qué categorías tienen mayor variabilidad en el precio por kilo a lo largo del tiempo?
+=======
+  summarise(Dia_Semana = wday(Fecha, label = TRUE, week_start = 1, abbr = FALSE)) %>% 
+  count(Dia_Semana, name = "Total_Tickets")
+ggplot(tickets_por_dia, aes(x=Dia_Semana, y=Total_Tickets)) +
+  geom_col(aes(fill=Dia_Semana)) +
+  labs(title = "Número de tickets por día de la semana")
+```
+
+- ¿Qué categorías tienen mayor variabilidad en el precio a lo largo del tiempo?
+
+```{r}
+precios_unidad <- productos %>%
+  left_join(info_tickets, by="Factura_simplificada") %>%
+  filter(is.na(PrecioKg) & !is.na(Cantidad)) %>%
+  mutate(Anyo = year(Fecha)) %>%
+  group_by(Anyo) %>%
+  summarise(Precio_medio = mean(PrecioUnitario))
+precios_unidad
+
+precios_frutas_verduras <- productos %>%
+  left_join(info_tickets, by="Factura_simplificada") %>%
+  filter(!is.na(PrecioKg) & !is.na(Cantidad)) %>%
+  mutate(Anyo = year(Fecha)) %>%
+  group_by(Anyo) %>%
+  summarise(Precio_medio = mean(PrecioKg))
+precios_frutas_verduras
+
+precios_pescado <- productos %>%
+  left_join(info_tickets, by="Factura_simplificada") %>%
+  filter(!is.na(PrecioKg) & is.na(Cantidad)) %>%
+  mutate(Anyo = year(Fecha)) %>%
+  group_by(Anyo) %>%
+  summarise(Precio_medio = mean(PrecioKg))
+precios_pescado
+
+```
+
+>>>>>>> 4d816666909579474cad7d7e256ec78f593c63a4
 - ¿Qué relación hay entre el tiempo de estancia en el parking y el importe del ticket?
 - ¿Cuál es la distribución del gasto total por ticket? ¿Es simétrica o presenta valores extremos?
 - ¿Qué 5 productos son más frecuentes por estación del año?
