@@ -796,6 +796,33 @@ El análisis revela que el pescado es significativamente más caro por kilo en c
 - ¿Qué municipios tienen tickets con importes promedio más altos en productos por unidad?
 (Agrupais por municipio y sacais los productos por unidad luego haceis un promedio del importe por municipio)
 
+No todos los pueblos compran igual. Hay sitios donde la gente va a Mercadona y llena el carro de cosas sueltas: champús, botellas, latas, bolsas de patatas… Y hay otros donde la báscula echa humo porque todo va por peso. En esta pregunta vamos a descubrir qué municipios se destacan por gastar más, pero específicamente en productos por unidad. ¿Quién es el rey del consumo unitario?
+
+
+```{r}
+# Unir ambos data frames por la factura
+productos_unidos <- productos %>%
+  filter(is.na(Peso_kg)) %>%
+  left_join(info_tickets, by = c("Factura_simplificada" = "Factura_simplificada"))
+
+# Agrupar por municipio y calcular el importe promedio de productos por unidad
+importe_municipio_unidad <- productos_unidos %>%
+  group_by(Municipio) %>%
+  summarise(ImportePromedioUnidad = mean(Importe, na.rm = TRUE)) %>%
+  arrange(desc(ImportePromedioUnidad))
+
+# Gráfico
+ggplot(importe_municipio_unidad, aes(x = reorder(Municipio, ImportePromedioUnidad), y = ImportePromedioUnidad)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Importe promedio por unidad según municipio",
+       x = "Municipio",
+       y = "Importe medio (€)") +
+  theme_minimal()
+```
+
+Los resultados muestran diferencias claras entre municipios. Hay localidades donde el gasto medio por cada producto por unidad es considerablemente más alto, lo cual podría indicar un mayor poder adquisitivo o una preferencia por artículos más caros como productos de limpieza, cosmética o artículos de hogar. Este tipo de análisis ayuda a entender cómo varían los patrones de consumo dependiendo del lugar.
+
 - ¿Cuáles son los 5 productos, de los vendidos por unidades, con más ventas? ¿Cuántas unidades de cada uno se han vendido?
 (agruparíamos por Producto, sumaríamos las unidades vendidas (sum(Cantidad)), y ordenaríamos en orden descendente para seleccionar los 5 primeros, mostrando así los artículos más comprados por volumen, luego los graficais)
 
