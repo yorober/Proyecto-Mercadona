@@ -796,8 +796,65 @@ El análisis revela que el pescado es significativamente más caro por kilo en c
 - ¿Qué municipios tienen tickets con importes promedio más altos en productos por unidad?
 (Agrupais por municipio y sacais los productos por unidad luego haceis un promedio del importe por municipio)
 
+No todos los pueblos compran igual. Hay sitios donde la gente va a Mercadona y llena el carro de cosas sueltas: champús, botellas, latas, bolsas de patatas… Y hay otros donde la báscula echa humo porque todo va por peso. En esta pregunta vamos a descubrir qué municipios se destacan por gastar más, pero específicamente en productos por unidad. ¿Quién es el rey del consumo unitario?
+
+
+```{r}
+# Unir ambos data frames por la factura
+productos_unidos <- productos %>%
+  filter(is.na(Peso_kg)) %>%
+  left_join(info_tickets, by = c("Factura_simplificada" = "Factura_simplificada"))
+
+# Agrupar por municipio y calcular el importe promedio de productos por unidad
+importe_municipio_unidad <- productos_unidos %>%
+  group_by(Municipio) %>%
+  summarise(ImportePromedioUnidad = mean(Importe, na.rm = TRUE)) %>%
+  arrange(desc(ImportePromedioUnidad))
+
+# Gráfico
+ggplot(importe_municipio_unidad, aes(x = reorder(Municipio, ImportePromedioUnidad), y = ImportePromedioUnidad)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Importe promedio por unidad según municipio",
+       x = "Municipio",
+       y = "Importe medio (€)") +
+  theme_minimal()
+```
+
+Los resultados muestran diferencias claras entre municipios. Hay localidades donde el gasto medio por cada producto por unidad es considerablemente más alto, lo cual podría indicar un mayor poder adquisitivo o una preferencia por artículos más caros como productos de limpieza, cosmética o artículos de hogar. Este tipo de análisis ayuda a entender cómo varían los patrones de consumo dependiendo del lugar.
+
 - ¿Cuáles son los 5 productos, de los vendidos por unidades, con más ventas? ¿Cuántas unidades de cada uno se han vendido?
 (agruparíamos por Producto, sumaríamos las unidades vendidas (sum(Cantidad)), y ordenaríamos en orden descendente para seleccionar los 5 primeros, mostrando así los artículos más comprados por volumen, luego los graficais)
+
+Hay productos que vuelan de las estanterías. A veces da igual el día, la hora o el supermercado: la gente va a por ellos como si se acabara el mundo. Esta pregunta nos ayudará a descubrir cuáles son esos productos estrella que más se venden por unidades. ¿Será el agua? ¿Las galletas? ¿El papel higiénico? Vamos a ver qué dice el top 5.
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# Top 5 productos vendidos por unidades
+top_unidades <- productos %>%
+  filter(is.na(Peso_kg)) %>%
+  group_by(Producto) %>%
+  summarise(UnidadesVendidas = sum(Cantidad, na.rm = TRUE)) %>%
+  arrange(desc(UnidadesVendidas)) %>%
+  slice_max(order_by = UnidadesVendidas, n = 5)
+
+# Gráfico
+ggplot(top_unidades, aes(x = reorder(Producto, UnidadesVendidas), y = UnidadesVendidas)) +
+  geom_col(fill = "darkgreen") +
+  coord_flip() +
+  labs(title = "Top 5 productos vendidos por unidades",
+       x = "Producto",
+       y = "Unidades vendidas") +
+  theme_minimal() 
+  
+
+```
+
+El análisis muestra que hay un grupo selecto de productos que lideran el ranking de unidades vendidas. Estos artículos, por su precio, utilidad o frecuencia de consumo, se han convertido en los favoritos de quienes hacen la compra. Este top 5 refleja hábitos de consumo muy marcados y nos da pistas claras sobre lo que no puede faltar en una bolsa de Mercadona.
+
+
 
 - Si consideramos la categoría de FRUTAS Y VERDURAS. ¿Cuáles son los 5 productos más vendidos? ¿Cuántos kilos se han vendido de cada uno de estos productos?
 (ya seguro teneis de antes las frutas y verduras asi que agruparíamos por producto, sumaríamos los kilos (sum(Peso_kg)), y ordenaríamos para obtener los 5 más vendidos por peso, lo que revelaría los preferidos en esta categoría.)
