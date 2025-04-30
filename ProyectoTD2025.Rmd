@@ -631,7 +631,27 @@ ggplot(importe_municipio, aes(x = reorder(Municipio, Importe_Medio), y = Importe
 ```
 
 - ¿Cuál es la procedencia de los tickets? ¿Qué ciudad/pueblo tiene un mayor número de tickets?
-(Decis cuales son los pueblos que tenemos en la tabla y luego agrupais los datos por ciudad y sumais el numero de tickets, luego lo podeis mostrar en un grafico de barras)
+```{r}
+# Agrupamos por municipio y contamos los tickets
+tickets_por_municipio <- info_tickets %>%
+  group_by(Municipio) %>%
+  summarise(Total_Tickets = n()) %>%
+  arrange(desc(Total_Tickets))
+
+tickets_por_municipio
+
+# Graficamos
+ggplot(tickets_por_municipio, aes(x = reorder(Municipio, Total_Tickets), y = Total_Tickets)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Número de tickets por municipio",
+       x = "Municipio",
+       y = "Total de tickets") +
+  theme_minimal(base_size = 10)
+
+
+```
+
 
 - ¿Qué porcentaje de las compras incluye productos con peso (por kilo) frente a productos por unidad?
 (juntais los df de productos y infoticket y luego haceis un promedio de los prodcutos por peso y los productos por unidad y los poneis en un grafico de barras o en graficas separadas para cada tipo)
@@ -896,8 +916,47 @@ El análisis muestra que hay un grupo selecto de productos que lideran el rankin
 - Si consideramos la categoría de FRUTAS Y VERDURAS. ¿Cuáles son los 5 productos más vendidos? ¿Cuántos kilos se han vendido de cada uno de estos productos?
 (ya seguro teneis de antes las frutas y verduras asi que agruparíamos por producto, sumaríamos los kilos (sum(Peso_kg)), y ordenaríamos para obtener los 5 más vendidos por peso, lo que revelaría los preferidos en esta categoría.)
 
+```{r}
+#Mediante el df usado anteriormenet de frutas_verduras, sepramos por productos y nos quedamos con los 5 productos más vendidos
+m_5_frutas_verduras <- frutas_verduras %>%
+  group_by(Producto) %>%
+  summarise(Total_Kg = sum(Peso_kg, na.rm = TRUE)) %>%
+  arrange(desc(Total_Kg)) %>%
+  slice_head(n=5)
+
+m_5_frutas_verduras
+
+
+```
+El ranking obtenido muestra que la fruta/verdura mas vendida es el platano que se han vendido 56.306 Kg, con mas del doble de kg vendidos sobre el segundo que es la banana con 25.978 Kg.
+
+
+
 - ¿Cuál es el gasto medio por categoría de producto?
 (Las categorias son frutas/verdura, pescados, y productos varios, todo lo que no sea de los 2 primeros es un producto vario , sabiendo esto agruparíamos por categoría y calcularíamos el importe promedio (mean(Importe)), dando una visión del gasto por tipo de producto.)
+
+```{r}
+#Separamos por categorias frutas/verduras, pescado, y productos varios(el resto de productos)
+categorias <- productos %>%
+  mutate(
+    categoria = case_when(
+      grepl("PESCADO", Producto, ignore.case = TRUE) ~ "Pescado",
+      grepl("PLÁTANO|MANZANA|PERA|KIWI|LECHUGA|TOMATE|ZANAHORIA|CEBOLLA|FRUTA|VERDURA", Producto, ignore.case = TRUE) ~ "Frutas/Verduras",
+      TRUE ~ "Productos varios"
+    )
+  )
+
+#Ya separado por categorias calculamos el gasto medio de cada uno
+media_categorias <- categorias %>%
+  group_by(categoria) %>%
+  summarise(Gasto_Medio = mean(Importe, na.rm =TRUE)) %>%
+  arrange(desc(Gasto_Medio))
+
+media_categorias
+```
+De las tres categorias la que mayor gasto medio tiene es el pescado, con 7.90 aproximadamente, seguido de los productos varios con 2.75 y por ultimo las frutas/verduras con 1.75€ de media.
+
+
 
 - Muestra mediante un gráfico de líneas cómo ha variado el precio por kilo de las bananas y los plátanos en los tickets disponibles, a lo largo del tiempo.
 (Filtraríamos productos con esos nombres, uniríamos con info_tickets para obtener la fecha, agruparíamos por fecha y producto, calcularíamos el precio medio por kg (mean(PrecioKg)), y graficaríamos con ggplot2 usando líneas (geom_line()) y facetas (facet_wrap) para comparar ambas tendencias en el tiempo.)
