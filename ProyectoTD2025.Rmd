@@ -611,7 +611,24 @@ ggplot(info_tickets, aes(x = Factura_simplificada, y = Importe_Final)) +
 ```
 
 - ¿Cuál es el importe medio de los tickets por municipio? ¿Se observan diferencias significativas entre zonas?
-(agrupais los datos por ciudad y mostrais en graficas diferentes (por ciudad) la media del importe de esos tickets, y luego respondeis a la pregunta)
+```{r}
+#Calcular el importe medio por municipio
+importe_municipio <- info_tickets %>%
+  group_by(Municipio) %>%
+  summarise(Importe_Medio = mean(Importe_Final, na.rm = TRUE)) %>%
+  arrange(desc(Importe_Medio))
+
+#Gráfico de barras ordenado
+ggplot(importe_municipio, aes(x = reorder(Municipio, Importe_Medio), y = Importe_Medio)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Importe medio de tickets por municipio",
+       x = "Municipio",
+       y = "Importe medio (€)") +
+  theme_minimal()
+
+
+```
 
 - ¿Cuál es la procedencia de los tickets? ¿Qué ciudad/pueblo tiene un mayor número de tickets?
 (Decis cuales son los pueblos que tenemos en la tabla y luego agrupais los datos por ciudad y sumais el numero de tickets, luego lo podeis mostrar en un grafico de barras)
