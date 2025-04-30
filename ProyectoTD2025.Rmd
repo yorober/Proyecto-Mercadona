@@ -631,7 +631,27 @@ ggplot(importe_municipio, aes(x = reorder(Municipio, Importe_Medio), y = Importe
 ```
 
 - ¿Cuál es la procedencia de los tickets? ¿Qué ciudad/pueblo tiene un mayor número de tickets?
-(Decis cuales son los pueblos que tenemos en la tabla y luego agrupais los datos por ciudad y sumais el numero de tickets, luego lo podeis mostrar en un grafico de barras)
+```{r}
+# Agrupamos por municipio y contamos los tickets
+tickets_por_municipio <- info_tickets %>%
+  group_by(Municipio) %>%
+  summarise(Total_Tickets = n()) %>%
+  arrange(desc(Total_Tickets))
+
+tickets_por_municipio
+
+# Graficamos
+ggplot(tickets_por_municipio, aes(x = reorder(Municipio, Total_Tickets), y = Total_Tickets)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Número de tickets por municipio",
+       x = "Municipio",
+       y = "Total de tickets") +
+  theme_minimal(base_size = 10)
+
+
+```
+
 
 - ¿Qué porcentaje de las compras incluye productos con peso (por kilo) frente a productos por unidad?
 (juntais los df de productos y infoticket y luego haceis un promedio de los prodcutos por peso y los productos por unidad y los poneis en un grafico de barras o en graficas separadas para cada tipo)
