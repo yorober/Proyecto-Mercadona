@@ -588,7 +588,27 @@ head(productos)
 
 ## Julen y Emma
 - ¿Cuál es el ticket de mayor importe registrado? ¿Qué productos incluye?
-(Esta es sencilla buscais en el df de info_ticket cual tiene mayor importe y luego mostrais todos los productos asociados a la factura simplificada de ese ticket, en este caso para graficarlo podeis simplemente meter todos los tickets en una grafica y señalar con un simbolo en el plot el ticket que tenga el valor mas alto )
+```{r}
+#Buscar el ticket de mayor importe:
+ticket_max <- info_tickets %>%
+  filter(Importe_Final == max(Importe_Final))
+ticket_max
+
+#Obtener los productos asociados al ticket de mayor importe:
+productos_max <- productos %>%
+  filter(Factura_simplificada == ticket_max$Factura_simplificada)
+productos_max
+
+#Graficar todos los tickets con el ticket máximo destacado
+ggplot(info_tickets, aes(x = Factura_simplificada, y = Importe_Final)) +
+  geom_point(alpha = 0.5) +
+  geom_point(data = ticket_max, aes(x = Factura_simplificada, y = Importe_Final),
+             color = "red", size = 3) +
+  labs(title = "Importe de todos los tickets con el ticket máximo destacado",
+       x = "Factura simplificada",
+       y = "Importe (€)") +
+  theme_minimal()
+```
 
 - ¿Cuál es el importe medio de los tickets por municipio? ¿Se observan diferencias significativas entre zonas?
 (agrupais los datos por ciudad y mostrais en graficas diferentes (por ciudad) la media del importe de esos tickets, y luego respondeis a la pregunta)
