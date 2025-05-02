@@ -960,3 +960,5 @@ De las tres categorias la que mayor gasto medio tiene es el pescado, con 7.90 ap
 
 - Muestra mediante un gráfico de líneas cómo ha variado el precio por kilo de las bananas y los plátanos en los tickets disponibles, a lo largo del tiempo.
 (Filtraríamos productos con esos nombres, uniríamos con info_tickets para obtener la fecha, agruparíamos por fecha y producto, calcularíamos el precio medio por kg (mean(PrecioKg)), y graficaríamos con ggplot2 usando líneas (geom_line()) y facetas (facet_wrap) para comparar ambas tendencias en el tiempo.)
+
+
